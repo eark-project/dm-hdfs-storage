@@ -1,6 +1,9 @@
-dm-hdfs-storage
-===============
+HDFS Sink 
+=========
+*A REST service to dump data onto HDFS*
 
+dm-hdfs-storage
+---------------
 eArk WP6 - reference implementation: bulk load into HDFS
 
 TODOs
