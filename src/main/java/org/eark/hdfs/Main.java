@@ -33,7 +33,6 @@ public class Main {
         // exposing the Jersey application at BASE_URI
         HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc, false);
         
-        
         NetworkListener nL = server.getListener(server.getListeners().iterator().next().getName()); //grizzly
         //disable server timeouts
         nL.setChunkingEnabled(true);
