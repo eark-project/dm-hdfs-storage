@@ -9,7 +9,16 @@ import org.glassfish.jersey.server.ResourceConfig;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Handler;
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 /**
  * Main class.
@@ -28,10 +37,12 @@ public class Main {
         // create a resource config that scans for JAX-RS resources and providers
         // in org.eark.hdfs package
         final ResourceConfig rc = new ResourceConfig().packages("org.eark.hdfs");
-
+        
         // create and start a new instance of grizzly http server
         // exposing the Jersey application at BASE_URI
         HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), rc, false);
+        
+        ServerConfiguration serverConfig = server.getServerConfiguration();
         
         NetworkListener nL = server.getListener(server.getListeners().iterator().next().getName()); //grizzly
         //disable server timeouts
@@ -39,6 +50,7 @@ public class Main {
         nL.setDisableUploadTimeout(true);
         nL.getKeepAlive().setIdleTimeoutInSeconds(-1); //256
         //server.getServerConfiguration();
+
         server.start();
         return server;
     }
@@ -49,7 +61,8 @@ public class Main {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-        final HttpServer server = startServer();
+        
+	final HttpServer server = startServer();
                 
         //ServerConfiguration serverConfig = server.getServerConfiguration().;
         System.out.println(String.format("Jersey app started with WADL available at "

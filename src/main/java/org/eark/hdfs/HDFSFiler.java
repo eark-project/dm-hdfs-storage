@@ -1,110 +1,62 @@
 package org.eark.hdfs;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
+import java.net.URISyntaxException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.BlockLocation;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
-public class HDFSFiler {
+public class HDFSFiler extends Filer {
     
-    private static Log LOG = LogFactory.getLog(HDFSFiler.class);
+    //private static Log LOG = LogFactory.getLog(HDFSFiler.class);
     
     /**
      * Hadoop Filesystem handle.
      */
-    private final FileSystem hdfs;
+    private /*final*/ FileSystem hdfs;
 
     /**
      * File to handle by this filer
      */
-    private final Path file;
+    private Path basePath;
 
-    HDFSFiler(URI uri) throws IOException {
-        this.file = new Path(uri);
-        hdfs = file.getFileSystem(new Configuration());
-    }
+    public HDFSFiler(String fsBasePath) throws IOException, URISyntaxException {
+	super(fsBasePath);
+	org.apache.log4j.BasicConfigurator.configure();
+	org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ALL);
+	
+	URI fsBaseURI = new URI(fsBasePath); 
+	this.basePath = new Path(fsBaseURI);
+	//Log LOG = LogFactory.getLog(Configuration.class);
+	org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration(true);
+	hadoopConf.addResource("/home/rainer/develop/hadoop/conf/core-site.xml");
+	hadoopConf.addResource("/home/rainer/develop/hadoop/conf/hdfs-site.xml");
+	//hadoopConf.set("fs.defaultFS", "hdfs://localhost:8020"); 
+	hadoopConf.set("fs.default.name","hdfs://localhost:9000/");
+	//configure implementation for local and remote fs
+	hadoopConf.set("fs.hdfs.impl", org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
+	hadoopConf.set("fs.file.impl", org.apache.hadoop.fs.LocalFileSystem.class.getName());
+	hdfs = FileSystem.get(hadoopConf);
+	basePath = new Path(hdfs.getHomeDirectory(), basePath);
+    }  
     
-    /**
-     * Copies a file or directory from the local filesystem to a remote one.
-     */
-    private void depositDirectoryOrFile(String strSrc, String strDest) throws IOException {
-        File source = new File( strSrc );
-        if(source.isDirectory()) {
-            depositDirectory(strSrc, strDest);
-        } else {
-            depositFile(strSrc, strDest);
-        }
-    }
+    //@Override
+    public String writeFile(InputStream fileInputStream, String fileName)
+	    throws IOException {
+	
+	Path outFile = new Path(basePath, fileName);
+	OutputStream outputStream = hdfs.create(outFile);	
+	writeFile(fileInputStream, outputStream);	
+    	return outFile.toUri().toString();
     
-    /**
-     * Copies a directory from the local filesystem to a remote one.
-     */
-    private void depositDirectory(String strSrc, String strDest) throws IOException {
-        // Get output directory name from strSrc
-        File localDir = new File( strSrc );
-        
-        if(!localDir.isDirectory()) {
-            throw new IOException("Could not find correct local output directory: " + localDir );
-        }
-        
-        LOG.debug("Local directory is: " + localDir );
-        
-        for(File localFile : localDir.listFiles()) {
-            depositDirectoryOrFile(localFile.getCanonicalPath(), strDest + File.separator + localFile.getName());
-        }
-    }
-
-    /**
-     * Copies a file from the local filesystem to a remote one.
-     */
-    private void depositFile(String strSrc, String strDest) throws IOException {
-        Path src = new Path(strSrc);
-        Path dest = new Path(strDest);
-        
-        LOG.debug("local file name is: "+src+" destination path is:" +dest);
-        hdfs.copyFromLocalFile(src, dest);
-    }
-
-    /**
-     * Returns the user defined directory of the file.
-     */
-    private String getPath() {
-        URI uri = this.file.toUri();
-        
-        String path = uri.getPath();
-        LOG.debug("path = " + path);
-        String sep = System.getProperty("file.separator");
-        return path.replace(Path.SEPARATOR, sep);
-    }
-
-    /**
-     * Returns working space directory with user defined directories.
-     */
-/*    private String getFullDirectory() {
-        String par = this.getPath();
-        return (this.dir.isEmpty() 
-                ? "hdfsfiler_" + file.hashCode()
-                : this.dir) 
-                + par;
-    }
-*/
-    //@Override
-    public InputStream getInputStream() throws IOException {
-        return hdfs.open(file);
-    }
-
-    //@Override
-    public OutputStream getOutputStream() throws IOException {
-        return hdfs.create(file);
     }
 
 }
+
