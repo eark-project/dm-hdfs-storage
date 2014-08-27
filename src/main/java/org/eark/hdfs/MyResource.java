@@ -7,8 +7,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Properties;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -32,14 +35,37 @@ import org.apache.hadoop.conf.Configuration;
 public class MyResource {
 
     @Context
-    private ServletContext application;
+    private ServletContext context;
     
     public static String FSFILER = "fsFiler";
     public static String HDFSFILER = "hdfsFiler";
     public static String FS_BASE_PATH = "data";
     
-    //public static String FILER_TYPE = FSFILER;
-    public static String FILER_TYPE = HDFSFILER;
+    public String filerType = null;
+    private Properties props = null;
+    
+    
+ 
+    private final static Logger LOG = Logger.getLogger(MyResource.class.getName());
+ 
+    @PostConstruct
+    public void init() {
+	LOG.log(Level.INFO, "MyResource initialized");
+	filerType = HDFSFILER;
+	Properties props = new Properties();
+	try {
+	    props.load(MyResource.class.getResourceAsStream("/config.properties"));
+	} catch (IOException e) {
+	    LOG.log(Level.WARNING, "No config.properties file found. Setting filerType to HDFSFILER");
+	} 
+	String property = props.getProperty("filer");
+	if(property == null || (!property.equals(FSFILER) && !property.equals(HDFSFILER)) ) {
+	    LOG.log(Level.WARNING, "No filer property found. Setting filerType to HDFSFILER");
+	} else {
+	    filerType = property;
+	    LOG.log(Level.INFO, "Filer set to "+filerType);
+	}
+    }
 
     /**
      * Method handling HTTP GET requests. The returned object will be sent
@@ -68,7 +94,6 @@ public class MyResource {
 	try {
 	    System.out.println("putFile.ping(): "+fileName);    	
 	    Filer filer = this.getFiler();
-	    filer = new HDFSFiler(FS_BASE_PATH);
 	    String filePath = filer.writeFile(fileInputStream, fileName);    	
 	    URI widgetId = new URI(filePath);
 	    return Response.created(widgetId).build();
@@ -81,9 +106,9 @@ public class MyResource {
     }
     
     private Filer getFiler() throws IOException, URISyntaxException {
-	if(FILER_TYPE.equals(FSFILER)) {
+	if(filerType.equals(FSFILER)) {
 	    return new FSFiler(FS_BASE_PATH);
-	} else if(FILER_TYPE.equals(HDFSFILER)) {
+	} else if(filerType.equals(HDFSFILER)) {
 	    Filer f = new HDFSFiler(FS_BASE_PATH);
 	    return f;
 	} else {

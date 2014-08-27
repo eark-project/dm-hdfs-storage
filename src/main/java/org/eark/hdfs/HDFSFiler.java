@@ -10,8 +10,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 public class HDFSFiler extends Filer {
     
@@ -30,8 +28,7 @@ public class HDFSFiler extends Filer {
     public HDFSFiler(String fsBasePath) throws IOException, URISyntaxException {
 	super(fsBasePath);
 	org.apache.log4j.BasicConfigurator.configure();
-	org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ALL);
-	
+	org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);	
 	URI fsBaseURI = new URI(fsBasePath); 
 	this.basePath = new Path(fsBaseURI);
 	//Log LOG = LogFactory.getLog(Configuration.class);
