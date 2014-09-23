@@ -1,5 +1,6 @@
 package org.eark.hdfs;
 
+import org.eark.logging.BasicLogFormatter;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
@@ -7,6 +8,7 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -61,8 +63,35 @@ public class Main {
      * @throws IOException
      */
     public static void main(String[] args) throws IOException {
-        
+
+	//Properties p = System.getProperties();
+	//p.setProperty("derby.system.home", "C:\databases\sample");
+	//TODO 
+	//Test BasicLogFormatter here!
+	try {
+	    InputStream is = MyResource.class.getResourceAsStream("/logging.properties");	  
+	    System.out.println("cl: "+LogManager.class.getClassLoader());
+	    //.loadClass("org.eark.logging.BasicLogFormatter");
+	    LogManager.getLogManager().readConfiguration(is);
+	} catch (Exception e) {
+	    e.printStackTrace();
+	}
+	
+	/*
+	ConsoleHandler cH = new ConsoleHandler();
+	cH.setFormatter(new BasicLogFormatter());
+	Logger.getGlobal().addHandler(cH);
+	System.out.println("handlers: "+Logger.getGlobal().getHandlers().length);
+	Enumeration<String> en = LogManager.getLogManager().getLoggerNames();
+	while(en.hasMoreElements()) {
+	    System.out.println(en.nextElement());
+	}
+	*/
+
+	
+	//[0].setFormatter(new BasicLogFormatter());
 	final HttpServer server = startServer();
+	
                 
         //ServerConfiguration serverConfig = server.getServerConfiguration().;
         System.out.println(String.format("Jersey app started with WADL available at "

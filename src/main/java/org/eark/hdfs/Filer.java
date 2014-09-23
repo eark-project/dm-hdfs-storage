@@ -33,6 +33,8 @@ public abstract class Filer {
     	    outputStream.close();
     	}
     }
+    
+    public abstract void write(OutputStream outputStream, String fileName) throws IOException;
 
     
     //public abstract int getMD5Sum(String path);

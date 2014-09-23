@@ -55,5 +55,12 @@ public class HDFSFiler extends Filer {
     
     }
 
+    @Override
+    public void write(OutputStream outputStream, String fileName)
+	    throws IOException {
+	// TODO Auto-generated method stub
+	
+    }
+
 }
 

@@ -21,9 +21,11 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.hadoop.conf.Configuration;
@@ -92,18 +94,42 @@ public class MyResource {
     {
 
 	try {
-	    System.out.println("putFile.ping(): "+fileName);    	
+	    LOG.log(Level.INFO, "putFile: "+fileName);    	
 	    Filer filer = this.getFiler();
 	    String filePath = filer.writeFile(fileInputStream, fileName);    	
 	    URI widgetId = new URI(filePath);
 	    return Response.created(widgetId).build();
+	    //TODO return the ID<Long>
 	    //return Response.created(createdUri).entity(Entity.text(createdContent)).build();
 	} catch(Exception ex) {
-	    System.out.println("Exception: "+ex);
-	    ex.printStackTrace();
-	    throw ex;
+	    LOG.log(Level.INFO, "Error while uploading file "+fileName, ex);
+            throw new WebApplicationException(ex);
 	}  
     }
+    
+    
+    @GET
+    @Path("/files/{fileName}")
+    @Produces(MediaType.APPLICATION_OCTET_STREAM)
+    public Response getFile(@PathParam("fileName") final String fileName)  throws Exception  {
+
+	LOG.log(Level.INFO, "getFile(): "+fileName);
+	final Filer filer = this.getFiler();
+	
+        StreamingOutput stream = new StreamingOutput() {
+            public void write(OutputStream output) throws IOException, WebApplicationException {
+                try {
+                    filer.write(output, fileName);
+                    //wb.write(output);
+                } catch (Exception ex) {
+        	    LOG.log(Level.INFO, "Error while downloading file "+fileName, ex);
+                    throw new WebApplicationException(ex);
+                }
+            }
+        };
+        return Response.ok(stream).header("content-disposition","attachment; filename = "+fileName).build();
+    }
+    
     
     private Filer getFiler() throws IOException, URISyntaxException {
 	if(filerType.equals(FSFILER)) {
