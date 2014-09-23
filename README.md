@@ -1,11 +1,13 @@
 HDFS Sink 
 ===============
-*A REST service to dump data onto HDFS*
 
-+eArk WP6 - reference implementation: bulk load into HDFS
-+
+eArk WP6 - reference implementation: bulk load into HDFS
+
+A REST service to dump data onto HDFS.
+
+
 TODOs
-------
+-----
 - use embedded jetty woth jaxrs/jersey or resteasy to create REST service
 - single JAR which can be run "-jar"
 - communicate needs with ESS
