@@ -1,4 +1,4 @@
-package org.eark.hdfs;
+package org.eu.eark.hdfs;
 
 import java.io.IOException;
 import java.io.InputStream;

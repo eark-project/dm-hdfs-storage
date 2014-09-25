@@ -1,4 +1,4 @@
-package org.eark.hdfs;
+package org.eu.eark.hdfs;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;

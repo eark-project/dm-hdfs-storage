@@ -1,6 +1,6 @@
-package org.eark.hdfs;
+package org.eu.eark.hdfs;
 
-import org.eark.logging.BasicLogFormatter;
+import org.eu.eark.logging.BasicLogFormatter;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
@@ -38,7 +38,7 @@ public class Main {
     public static HttpServer startServer() throws IOException {
         // create a resource config that scans for JAX-RS resources and providers
         // in org.eark.hdfs package
-        final ResourceConfig rc = new ResourceConfig().packages("org.eark.hdfs");
+        final ResourceConfig rc = new ResourceConfig().packages("org.eu.eark.hdfs");
         
         // create and start a new instance of grizzly http server
         // exposing the Jersey application at BASE_URI
