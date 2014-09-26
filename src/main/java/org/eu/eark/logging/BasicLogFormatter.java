@@ -6,6 +6,9 @@ import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
+/*
+ * A simple log formatter for jdk logging
+ */
 public final class BasicLogFormatter extends Formatter {
 
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");

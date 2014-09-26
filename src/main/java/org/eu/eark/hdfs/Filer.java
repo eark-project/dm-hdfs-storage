@@ -8,6 +8,9 @@ public abstract class Filer {
 
   protected String fsBasePath;
 
+  /*
+   * Abstract class for handling file IO, which should be subclassed for different file systems. 
+   */
   public Filer() {
   }
 

@@ -15,16 +15,12 @@ public class HDFSFiler extends Filer {
 
   // private static Log LOG = LogFactory.getLog(HDFSFiler.class);
 
-  /**
-   * Hadoop Filesystem handle.
-   */
   private/* final */FileSystem hdfs;
-
-  /**
-   * File to handle by this filer
-   */
   private Path basePath;
 
+  /*
+   * Filer implmenetation for HDFS
+   */
   public HDFSFiler(String fsBasePath) throws IOException, URISyntaxException {
     super(fsBasePath);
     org.apache.log4j.BasicConfigurator.configure();
@@ -32,7 +28,6 @@ public class HDFSFiler extends Filer {
         org.apache.log4j.Level.ERROR);
     URI fsBaseURI = new URI(fsBasePath);
     this.basePath = new Path(fsBaseURI);
-    // Log LOG = LogFactory.getLog(Configuration.class);
     org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration(
         true);
     hadoopConf.addResource("/home/rainer/develop/hadoop/conf/core-site.xml");

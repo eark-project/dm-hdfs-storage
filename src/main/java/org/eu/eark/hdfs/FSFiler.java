@@ -10,6 +10,9 @@ import java.io.OutputStream;
 
 public class FSFiler extends Filer {
 
+  /*
+   * Filer implementation for local file system
+   */
   public FSFiler(String fsBasePath) {
     super(fsBasePath);
   }
