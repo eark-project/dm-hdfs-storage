@@ -68,6 +68,7 @@ public class Main {
       System.out.println("cl: " + LogManager.class.getClassLoader());
       // .loadClass("org.eark.logging.BasicLogFormatter");
       LogManager.getLogManager().readConfiguration(is);
+      //LogManager.getLogManager().g
     } catch (Exception e) {
       e.printStackTrace();
     }

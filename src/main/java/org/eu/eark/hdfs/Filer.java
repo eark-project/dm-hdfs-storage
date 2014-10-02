@@ -1,15 +1,20 @@
 package org.eu.eark.hdfs;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.logging.Logger;
 
 public abstract class Filer {
 
   protected String fsBasePath;
 
+  private final static Logger LOG = Logger.getLogger(Filer.class.getName());
+
   /*
-   * Abstract class for handling file IO, which should be subclassed for different file systems. 
+   * Abstract class for handling file IO, which should be subclassed for
+   * different file systems.
    */
   public Filer() {
   }
@@ -18,20 +23,23 @@ public abstract class Filer {
     this.fsBasePath = fsBasePath;
   }
 
-  public abstract String writeFile(InputStream fileInputStream, String fileName)
-      throws IOException;
-
-  public void writeFile(InputStream fileInputStream, OutputStream outputStream) 
+  public void write(InputStream fileInputStream, OutputStream outputStream)
       throws IOException {
     try {
+
+      LOG.fine("Filer.writeFile()");
       byte[] buffer = new byte[1024];
       int bytesRead;
 
       while ((bytesRead = fileInputStream.read(buffer)) != -1) {
+        LOG.fine("read " +bytesRead + " bytes");
         outputStream.write(buffer, 0, bytesRead);
       }
       fileInputStream.close();
       outputStream.flush();
+      LOG.fine("Filer.writeFile() - done");
+    } catch(EOFException eof) {
+      LOG.fine("writing: end of File reached");
     } catch (IOException e) {
       e.printStackTrace();
     } finally {
@@ -39,7 +47,10 @@ public abstract class Filer {
     }
   }
 
-  public abstract void write(OutputStream outputStream, String fileName)
+  public abstract String writeFile(InputStream fileInputStream, String fileName)
+      throws IOException;
+
+  public abstract void writeStream(OutputStream outputStream, String fileName)
       throws IOException;
 
   // public abstract int getMD5Sum(String path);

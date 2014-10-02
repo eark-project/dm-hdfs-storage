@@ -28,29 +28,18 @@ public class FSFiler extends Filer {
     }
 
     OutputStream outputStream = new FileOutputStream(path);
-    writeFile(fileInputStream, outputStream);
+    write(fileInputStream, outputStream);
     return file.getPath();
   }
 
   @Override
-  public void write(OutputStream outputStream, String fileName)
+  public void writeStream(OutputStream outputStream, String fileName)
       throws IOException {
 
     String path = fsBasePath + File.separator + fileName;
     File file = new File(path);
     InputStream inputStream = new FileInputStream(file);
-    
-    byte[] buffer = new byte[1024];
-    int bytesRead;
-
-    while ((bytesRead = inputStream.read(buffer, 0, buffer.length)) > 0) {
-      outputStream.write(buffer, 0, bytesRead);
-      outputStream.flush();
-    }
-
-    outputStream.close();
-    inputStream.close();
-
+    write(inputStream, outputStream);
   }
 
 }

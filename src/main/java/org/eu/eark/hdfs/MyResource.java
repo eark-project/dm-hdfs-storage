@@ -1,5 +1,6 @@
 package org.eu.eark.hdfs;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -98,6 +99,7 @@ public class MyResource {
 	    Filer filer = this.getFiler();
 	    String filePath = filer.writeFile(fileInputStream, fileName);    	
 	    URI widgetId = new URI(filePath);
+	    LOG.log(Level.FINE, "putFile: "+widgetId.toASCIIString()+" done");
 	    return Response.created(widgetId).build();
 	    //TODO return the ID<Long>
 	    //return Response.created(createdUri).entity(Entity.text(createdContent)).build();
@@ -111,23 +113,27 @@ public class MyResource {
   @GET
   @Path("/files/{fileName}")
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  
   public /*Response*/StreamingOutput getFile(@PathParam("fileName") final String fileName)  throws Exception  {
     
+    //TODO propagate errors back to client!
     LOG.log(Level.INFO, "getFile(): "+fileName);
     final Filer filer = this.getFiler();
+    LOG.log(Level.FINE, "getFile(): after filer initialization");
 	
     StreamingOutput stream = new StreamingOutput() {
       public void write(OutputStream output) throws IOException, WebApplicationException {
       try {
-        filer.write(output, fileName);
-        //wb.write(output);
+        LOG.log(Level.FINE, "streamingOutput.write() called");
+        LOG.log(Level.FINE, "streamingOutput.write() witing to outputStream: "+output);
+        filer.writeStream(output, fileName);
         } catch (Exception ex) {
           LOG.log(Level.INFO, "Error while downloading file "+fileName, ex);
           throw new WebApplicationException(ex);
         }
       }
     };
-    //return Response.ok(stream).header("content-disposition","attachment; filename = "+fileName).build();
+    
     return stream;
   }
     
