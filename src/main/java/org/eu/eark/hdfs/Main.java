@@ -28,7 +28,7 @@ import java.util.logging.SimpleFormatter;
 public class Main {
   
   // Base URI the Grizzly HTTP server will listen on
-  public static final String BASE_URI = "http://localhost:8080/myapp/";
+  public static final String BASE_URI = "http://localhost:8081/myapp/";
 
   public static HttpServer startServer() throws IOException {
     // create a resource config that scans for JAX-RS resources and providers
