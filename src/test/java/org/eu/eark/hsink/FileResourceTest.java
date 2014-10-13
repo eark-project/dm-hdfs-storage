@@ -1,9 +1,10 @@
-package org.eu.eark.hdfs;
+package org.eu.eark.hsink;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 
+import org.eu.eark.hsink.Main;
 import org.glassfish.grizzly.http.server.HttpServer;
 
 import org.junit.After;

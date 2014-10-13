@@ -1,6 +1,6 @@
-package org.eu.eark.hdfs;
+package org.eu.eark.hsink;
 
-import org.eu.eark.logging.BasicLogFormatter;
+import org.eu.eark.hsink.logging.BasicLogFormatter;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
@@ -33,7 +33,7 @@ public class Main {
   private final static Logger LOG = Logger.getLogger(Main.class.getName());
 
   public static HttpServer startServer() throws IOException {
-    final ResourceConfig rc = new ResourceConfig().packages("org.eu.eark.hdfs");
+    final ResourceConfig rc = new ResourceConfig().packages("org.eu.eark.hsink");
 
     HttpServer server = GrizzlyHttpServerFactory.createHttpServer(
         URI.create(BASE_URI), rc, false);

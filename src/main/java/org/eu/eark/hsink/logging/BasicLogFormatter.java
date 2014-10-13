@@ -1,4 +1,4 @@
-package org.eu.eark.logging;
+package org.eu.eark.hsink.logging;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
