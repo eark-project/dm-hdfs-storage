@@ -7,6 +7,7 @@ import org.glassfish.grizzly.http.server.ServerConfiguration;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -23,20 +24,17 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 /*
- * Main class for starting Grizzly HTTP server and exposing JAX-RS resources.@throws IOException
+ * Main class for starting Grizzly HTTP server and exposing JAX-RS resources.
  */
 public class Main {
   
-  // Base URI the Grizzly HTTP server will listen on
   public static final String BASE_URI = "http://localhost:8081/myapp/";
+  
+  private final static Logger LOG = Logger.getLogger(Main.class.getName());
 
   public static HttpServer startServer() throws IOException {
-    // create a resource config that scans for JAX-RS resources and providers
-    // in org.eark.hdfs package
     final ResourceConfig rc = new ResourceConfig().packages("org.eu.eark.hdfs");
 
-    // create and start a new instance of grizzly http server
-    // exposing the Jersey application at BASE_URI
     HttpServer server = GrizzlyHttpServerFactory.createHttpServer(
         URI.create(BASE_URI), rc, false);
 
@@ -54,21 +52,14 @@ public class Main {
     return server;
   }
 
-  /**
-   * Main method.
-   * 
-   * @param args
-   * @throws IOException
-   */
   public static void main(String[] args) throws IOException {
 
     try {
-      InputStream is = MyResource.class
+      InputStream is = FileResource.class
           .getResourceAsStream("/logging.properties");
       System.out.println("cl: " + LogManager.class.getClassLoader());
       // .loadClass("org.eark.logging.BasicLogFormatter");
       LogManager.getLogManager().readConfiguration(is);
-      //LogManager.getLogManager().g
     } catch (Exception e) {
       e.printStackTrace();
     }
@@ -82,7 +73,21 @@ public class Main {
      */
     // [0].setFormatter(new BasicLogFormatter());
     final HttpServer server = startServer();
-
+    
+    Enumeration<String> en = LogManager.getLogManager().getLoggerNames();
+    while(en.hasMoreElements()) { 
+      String loggerName = en.nextElement();
+      //suppress logging of EOFException at fine level
+      if(loggerName.equals("org.glassfish.grizzly.nio.transport.TCPNIOTransport") ||
+         loggerName.equals("org.glassfish.grizzly.filterchain.DefaultFilterChain")) {
+        Logger logger = LogManager.getLogManager().getLogger(loggerName);
+        logger.setLevel(Level.INFO);
+        System.out.println(loggerName+" ... level set to INFO");
+      } else {
+        //System.out.println(loggerName);
+      }
+    }
+     
     // ServerConfiguration serverConfig = server.getServerConfiguration().;
     System.out.println(String.format(
         "Jersey app started with WADL available at "

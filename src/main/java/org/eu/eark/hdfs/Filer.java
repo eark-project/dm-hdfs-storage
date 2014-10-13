@@ -32,7 +32,7 @@ public abstract class Filer {
       int bytesRead;
 
       while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-        LOG.fine("read " +bytesRead + " bytes");
+        LOG.finest("read " +bytesRead + " bytes");
         outputStream.write(buffer, 0, bytesRead);
       }
       fileInputStream.close();

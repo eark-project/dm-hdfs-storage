@@ -34,8 +34,8 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Root resource (exposed at "myresource" path)
  */
-@Path("myresource")
-public class MyResource {
+@Path("fileresource")
+public class FileResource {
 
   @Context
   private ServletContext context;
@@ -49,15 +49,15 @@ public class MyResource {
     
     
  
-  private final static Logger LOG = Logger.getLogger(MyResource.class.getName());
+  private final static Logger LOG = Logger.getLogger(FileResource.class.getName());
  
   @PostConstruct
   public void init() {
-    LOG.log(Level.INFO, "MyResource initialized");
+    LOG.log(Level.INFO, "FileResource initialized");
     filerType = HDFSFILER;
     Properties props = new Properties();
     try {
-	    props.load(MyResource.class.getResourceAsStream("/config.properties"));
+	    props.load(FileResource.class.getResourceAsStream("/config.properties"));
     } catch (IOException e) {
 	    LOG.log(Level.WARNING, "No config.properties file found. Setting filerType to HDFSFILER");
     } 

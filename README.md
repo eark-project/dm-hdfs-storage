@@ -1,5 +1,5 @@
-HDFS Sink 
-===============
+HDFS Resource 
+=============
 
 eArk WP6 - reference implementation: bulk load into HDFS
 
