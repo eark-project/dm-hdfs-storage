@@ -30,6 +30,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.hadoop.conf.Configuration;
+import org.eu.eark.hsink.naming.FileTree;
 
 /**
  * Root resource (exposed at "myresource" path)
@@ -45,6 +46,7 @@ public class FileResource {
   public static String FS_BASE_PATH = "data";
    
   public String filerType = null;
+  public FileTree fileTree = null;
   private Properties props = null;
     
     
@@ -54,6 +56,7 @@ public class FileResource {
   @PostConstruct
   public void init() {
     LOG.log(Level.INFO, "FileResource initialized");
+    fileTree = new FileTree();
     filerType = HDFSFILER;
     Properties props = new Properties();
     try {
@@ -97,6 +100,7 @@ public class FileResource {
     try {
 	    LOG.log(Level.INFO, "putFile: "+fileName);    	
 	    Filer filer = this.getFiler();
+	    LOG.log(Level.INFO, "directory id: "+fileTree.nextDirName());
 	    String filePath = filer.writeFile(fileInputStream, fileName);    	
 	    URI widgetId = new URI(filePath);
 	    LOG.log(Level.FINE, "putFile: "+widgetId.toASCIIString()+" done");

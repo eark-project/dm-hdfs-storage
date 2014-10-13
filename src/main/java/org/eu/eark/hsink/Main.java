@@ -28,9 +28,9 @@ import java.util.logging.SimpleFormatter;
  */
 public class Main {
   
-  public static final String BASE_URI = "http://localhost:8081/myapp/";
-  
   private final static Logger LOG = Logger.getLogger(Main.class.getName());
+  
+  public static final String BASE_URI = "http://localhost:8081/myapp/";
 
   public static HttpServer startServer() throws IOException {
     final ResourceConfig rc = new ResourceConfig().packages("org.eu.eark.hsink");
