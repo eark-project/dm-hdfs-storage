@@ -44,6 +44,8 @@ public class FileResource {
   public static String FSFILER = "fsFiler";
   public static String HDFSFILER = "hdfsFiler";
   public static String FS_BASE_PATH = "data";
+  
+  public static String WEB_BASE_PATH = "files";
    
   public String filerType = null;
   public FileTree fileTree = null;
@@ -89,7 +91,7 @@ public class FileResource {
   //@Consumes("application/octet-stream")
   //@POST
   @PUT
-  @Path("/upload/{fileName}")
+  @Path("/files/{fileName}")
   @Consumes(MediaType.APPLICATION_OCTET_STREAM)
   public Response putFile(@Context HttpServletRequest request,
                           @PathParam("fileName") String fileName,
@@ -100,9 +102,11 @@ public class FileResource {
     try {
 	    LOG.log(Level.INFO, "putFile: "+fileName);    	
 	    Filer filer = this.getFiler();
-	    LOG.log(Level.INFO, "directory id: "+fileTree.nextDirName());
-	    String filePath = filer.writeFile(fileInputStream, fileName);    	
-	    URI widgetId = new URI(filePath);
+	    String dirName = fileTree.nextDirName();
+	    LOG.log(Level.FINE, "directory id: "+dirName);
+	    String filePath = filer.writeFile(fileInputStream, fileName, dirName);
+	    LOG.log(Level.FINE, "filePath: "+filePath);
+	    URI widgetId = new URI(this.WEB_BASE_PATH+'/'+filePath);
 	    LOG.log(Level.FINE, "putFile: "+widgetId.toASCIIString()+" done");
 	    return Response.created(widgetId).build();
 	    //TODO return the ID<Long>

@@ -16,20 +16,41 @@ public class FSFiler extends Filer {
   public FSFiler(String fsBasePath) {
     super(fsBasePath);
   }
+  
+  public String writeFile(InputStream fileInputStream, String fileName, String dirName)
+      throws IOException {
+    
+    String path = "";
+    String filePath = "";
+    if(dirName != null && !dirName.equals("")) {
+      path = dirName+'/';
+      filePath = this.fsBasePath+File.separator+dirName;
+      File file = new File(filePath);
+      if(file.exists() || file.isDirectory())
+         throw new IOException("attempt to create existing directory "+filePath);
+      if(!file.mkdir())
+        throw new IOException("error creating directury "+filePath);
+    }    
+    
+    path = path + fileName;
+    filePath = filePath+File.separator+fileName; 
+    File file = new File(filePath);
+    if(file.exists())
+      throw new IOException("attempt to create existing file "+filePath);
+    if (!file.createNewFile()) {
+      throw new IOException("error creating file "+filePath);
+    }
+
+    OutputStream outputStream = new FileOutputStream(filePath);
+    write(fileInputStream, outputStream);
+    return path;
+  }
 
   @Override
   public String writeFile(InputStream fileInputStream, String fileName)
       throws IOException {
 
-    String path = fsBasePath + File.separator + fileName;
-    File file = new File("path");
-    if (!file.exists()) {
-      file.createNewFile();
-    }
-
-    OutputStream outputStream = new FileOutputStream(path);
-    write(fileInputStream, outputStream);
-    return file.getPath();
+    return writeFile(fileInputStream, fileName, null);
   }
 
   @Override

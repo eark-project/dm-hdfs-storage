@@ -47,6 +47,9 @@ public abstract class Filer {
     }
   }
 
+  public abstract String writeFile(InputStream fileInputStream, String fileName, String dirName)
+      throws IOException;
+  
   public abstract String writeFile(InputStream fileInputStream, String fileName)
       throws IOException;
 

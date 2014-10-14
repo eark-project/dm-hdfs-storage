@@ -30,7 +30,7 @@ public class Main {
   
   private final static Logger LOG = Logger.getLogger(Main.class.getName());
   
-  public static final String BASE_URI = "http://localhost:8081/myapp/";
+  public static final String BASE_URI = "http://localhost:8081/hsink/";
 
   public static HttpServer startServer() throws IOException {
     final ResourceConfig rc = new ResourceConfig().packages("org.eu.eark.hsink");

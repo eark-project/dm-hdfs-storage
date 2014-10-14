@@ -48,7 +48,13 @@ public class HDFSFiler extends Filer {
     basePath = new Path(hdfs.getHomeDirectory(), basePath);
     LOG.fine("HDFSFiler() - initialized. basePath="+basePath.toString());    
   }
-
+  
+  public String writeFile(InputStream fileInputStream, String fileName, String dirName)
+      throws IOException {
+    
+    return "not immplemented";
+  }
+      
   // @Override
   public String writeFile(InputStream fileInputStream, String fileName)
       throws IOException {
