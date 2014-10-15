@@ -48,7 +48,6 @@ public class FileResource {
   public static String WEB_BASE_PATH = "files";
    
   public String filerType = null;
-  public FileTree fileTree = null;
   private Properties props = null;
     
     
@@ -58,7 +57,6 @@ public class FileResource {
   @PostConstruct
   public void init() {
     LOG.log(Level.INFO, "FileResource initialized");
-    fileTree = new FileTree();
     filerType = HDFSFILER;
     Properties props = new Properties();
     try {
@@ -102,7 +100,7 @@ public class FileResource {
     try {
 	    LOG.log(Level.INFO, "putFile: "+fileName);    	
 	    Filer filer = this.getFiler();
-	    String dirName = fileTree.nextDirName();
+	    String dirName = FileTree.getInstance().nextDirName();
 	    LOG.log(Level.FINE, "directory id: "+dirName);
 	    String filePath = filer.writeFile(fileInputStream, fileName, dirName);
 	    LOG.log(Level.FINE, "filePath: "+filePath);
@@ -143,6 +141,17 @@ public class FileResource {
     };
     
     return stream;
+  }
+  
+  @GET
+  @Path("/files/{pathName}/{fileName}")
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  
+  public /*Response*/StreamingOutput getFile(@PathParam("pathName") final String pathName, @PathParam("fileName") final String fileName)  throws Exception  {
+    
+    //TODO propagate errors back to client!
+    LOG.log(Level.INFO, "getFile(): "+pathName+"/"+fileName);
+    return this.getFile(pathName+"/"+fileName);
   }
     
     
