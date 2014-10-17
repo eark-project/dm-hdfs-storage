@@ -1,10 +1,13 @@
 package org.eu.eark.hsink;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.commons.logging.Log;
@@ -52,19 +55,32 @@ public class HDFSFiler extends Filer {
   public String writeFile(InputStream fileInputStream, String fileName, String dirName)
       throws IOException {
     
-    return "not immplemented";
+    String path = "";
+    Path filePath = basePath;
+    if(dirName != null && !dirName.equals("")) {
+      path = dirName+'/';
+      filePath = new Path(filePath, dirName);
+      if( hdfs.isFile(filePath) || hdfs.isDirectory(filePath))
+         throw new IOException("attempt to create existing directory "+filePath);
+      if(!hdfs.mkdirs(filePath))
+        throw new IOException("error creating directury "+filePath);
+    }    
+    
+    path = path + fileName;
+    filePath = new Path(filePath, fileName); 
+    if(hdfs.isFile(filePath) || hdfs.isDirectory(filePath))
+      throw new IOException("attempt to create existing file "+filePath);
+    OutputStream outputStream = hdfs.create(filePath);
+    write(fileInputStream, outputStream);
+    LOG.fine("HDFSFiler.writeFile() - done");    
+    return path;
   }
       
   // @Override
   public String writeFile(InputStream fileInputStream, String fileName)
       throws IOException {
 
-    LOG.fine("HDFSFiler.writeFile()");
-    Path outFile = new Path(basePath, fileName);
-    OutputStream outputStream = hdfs.create(outFile);
-    write(fileInputStream, outputStream);
-    LOG.fine("HDFSFiler.writeFile() - done");    
-    return outFile.toUri().toString();
+    return writeFile(fileInputStream, fileName, null);
   }
 
   @Override
@@ -76,6 +92,11 @@ public class HDFSFiler extends Filer {
     InputStream inputStream = hdfs.open(inFile).getWrappedStream();
     write(inputStream, outputStream);
     LOG.fine("HDFSFiler.writeStream() - done");
+  }
+  
+  public List readDirectories() {
+    //hdfs.g
+    return null;
   }
 
 }

@@ -87,12 +87,15 @@
             <artifactId>hadoop-core</artifactId>
             <scope>compile</scope>
          </dependency-->
-         <!-- dependency>
+         <!-- required to access hdfs-->
+         <dependency>
          	<groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
+            <version>${hadoop.version}</version>
             <scope>compile</scope>
-         </dependency-->
-		<!--	
+         </dependency>
+		<!-- -->	
+		<!--
  		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
