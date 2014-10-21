@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -96,6 +97,12 @@ public class HDFSFiler extends Filer {
   
   public List readDirectories() {
     //hdfs.g
+    return null;
+  }
+
+  @Override
+  public ArrayList<String> getDirNames() throws IOException {
+    // TODO Auto-generated method stub
     return null;
   }
 

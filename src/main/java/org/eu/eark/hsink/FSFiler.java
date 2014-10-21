@@ -7,6 +7,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class FSFiler extends Filer {
 
@@ -61,6 +63,13 @@ public class FSFiler extends Filer {
     File file = new File(path);
     InputStream inputStream = new FileInputStream(file);
     write(inputStream, outputStream);
+  }
+
+  @Override
+  public ArrayList<String> getDirNames() throws IOException {
+    File file = new File(fsBasePath);
+    ArrayList<String> names = new ArrayList<String>(Arrays.asList(file.list())); 
+    return names;
   }
 
 }

@@ -4,6 +4,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.logging.Logger;
 
 public abstract class Filer {
@@ -54,6 +55,9 @@ public abstract class Filer {
       throws IOException;
 
   public abstract void writeStream(OutputStream outputStream, String fileName)
+      throws IOException;
+  
+  public abstract ArrayList<String> getDirNames() 
       throws IOException;
 
   // public abstract int getMD5Sum(String path);

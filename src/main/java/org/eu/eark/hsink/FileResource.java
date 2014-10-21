@@ -31,6 +31,7 @@ import javax.ws.rs.core.UriBuilder;
 
 import org.apache.hadoop.conf.Configuration;
 import org.eu.eark.hsink.naming.FileTree;
+import org.eu.eark.hsink.properties.ConfigProperties;
 
 /**
  * Root resource (exposed at "myresource" path)
@@ -58,13 +59,7 @@ public class FileResource {
   public void init() {
     LOG.log(Level.INFO, "FileResource initialized");
     filerType = HDFSFILER;
-    Properties props = new Properties();
-    try {
-	    props.load(FileResource.class.getResourceAsStream("/config.properties"));
-    } catch (IOException e) {
-	    LOG.log(Level.WARNING, "No config.properties file found. Setting filerType to HDFSFILER");
-    } 
-    String property = props.getProperty("filer");
+    String property = ConfigProperties.getInstance().getProperty("filer");
     if(property == null || (!property.equals(FSFILER) && !property.equals(HDFSFILER)) ) {
 	    LOG.log(Level.WARNING, "No filer property found. Setting filerType to HDFSFILER");
     } else {
@@ -100,7 +95,7 @@ public class FileResource {
     try {
 	    LOG.log(Level.INFO, "putFile: "+fileName);    	
 	    Filer filer = this.getFiler();
-	    String dirName = FileTree.getInstance().nextDirName();
+	    String dirName = FileTree.getInstance(filer).nextDirName();
 	    LOG.log(Level.FINE, "directory id: "+dirName);
 	    String filePath = filer.writeFile(fileInputStream, fileName, dirName);
 	    LOG.log(Level.FINE, "filePath: "+filePath);

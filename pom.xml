@@ -43,6 +43,13 @@
 			<artifactId>javax.annotation-api</artifactId>
 			<version>1.2</version>
 		</dependency>
+		<!-- -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
+  		</dependency>
+		<!-- -->
 		<!-- only required by the client 
 		<dependency> 
 			<groupId>org.glassfish.jersey.media</groupId> 
@@ -82,11 +89,11 @@
 			<!-- overwriting scope -->
 			<scope>compile</scope>
 		</dependency>
-		<!--dependency>
+		<dependency>
         	<groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-core</artifactId>
+            <artifactId>hadoop-common</artifactId>
             <scope>compile</scope>
-         </dependency-->
+         </dependency>
          <!-- required to access hdfs-->
          <dependency>
          	<groupId>org.apache.hadoop</groupId>
@@ -145,6 +152,30 @@
 				<configuration>
 					<mainClass>org.eu.eark.hsink.Main</mainClass>
 				</configuration>
+			</plugin>
+			<plugin>
+				<!-- skip with: -Dassembly.skipAssembly=true -->
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+					<archive>
+						<manifest>
+							<addClasspath>true</addClasspath>
+							<mainClass>org.eu.eark.hsink.Main</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

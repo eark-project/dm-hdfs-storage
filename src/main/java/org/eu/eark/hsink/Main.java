@@ -1,6 +1,7 @@
 package org.eu.eark.hsink;
 
 import org.eu.eark.hsink.logging.BasicLogFormatter;
+import org.eu.eark.hsink.properties.ConfigProperties;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.http.server.ServerConfiguration;
@@ -30,9 +31,15 @@ public class Main {
   
   private final static Logger LOG = Logger.getLogger(Main.class.getName());
   
-  public static final String BASE_URI = "http://localhost:8081/hsink/";
+  public static String BASE_URI = "http://localhost:8081/hsink/";
 
   public static HttpServer startServer() throws IOException {
+    
+    String baseUri = ConfigProperties.getInstance().getProperty("BASE_URI");
+    if(baseUri != null) {
+      BASE_URI = baseUri; 
+      LOG.info("base uri set to: "+baseUri);
+    }
     final ResourceConfig rc = new ResourceConfig().packages("org.eu.eark.hsink");
 
     HttpServer server = GrizzlyHttpServerFactory.createHttpServer(
@@ -62,6 +69,16 @@ public class Main {
       LogManager.getLogManager().readConfiguration(is);
     } catch (Exception e) {
       e.printStackTrace();
+    }
+    
+    for(String arg : args) {
+      String[] keyValue = arg.split("=");
+      if(keyValue.length == 2) {
+        ConfigProperties.getInstance().setProperty(keyValue[0], keyValue[1]);
+        LOG.fine("Setting or overwriting config property: "+arg);
+      } else {
+        LOG.fine("Invalid config property (key=value). Ignoring: "+arg);
+      }
     }
 
     /*
