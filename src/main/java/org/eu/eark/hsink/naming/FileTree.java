@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.TreeSet;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import org.eu.eark.hsink.Filer;
 import org.eu.eark.hsink.Main;
@@ -50,7 +51,7 @@ public class FileTree {
       count = Long.valueOf(last.getCount());
     } 
     DirName next = new DirName();
-    next.setCount(new Long(count+1L).toString());
+    next.setCount(new Long(count+1L));
     dirNames.add(next);
     LOG.fine("new dir name: "+next);
     return next.toString();
@@ -58,7 +59,7 @@ public class FileTree {
   
   static class DirName implements Comparable<DirName> {
     
-    String count = null;
+    long count = -1L;
     String date = null;    
     public static final String DELIMITER = ".";
     public static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -67,7 +68,7 @@ public class FileTree {
       date = dateFormat.format(new Date());
     }
     
-    private DirName(String count, String date) {
+    private DirName(long count, String date) {
       this.count = count;
       this.date = date;
     }
@@ -78,21 +79,24 @@ public class FileTree {
     
     public static DirName parse(String dirName) {
       try {
-        String[] valval = dirName.split(DELIMITER);
+        LOG.fine("Parsing dirName: "+dirName);
+        String[] valval = dirName.split(Pattern.quote(DELIMITER));
+        LOG.fine("valval.length: "+ (valval == null ? "-null-" : valval.length));
+        LOG.fine("Parsing result: "+valval[0]+" " +valval[1]);
         if(valval.length != 2) throw new Exception("error parsing directory name: "+dirName);
-        String count = valval [0];
+        String count = valval[0];
         Date date = dateFormat.parse(valval[1]);
-        return new DirName(count, dateFormat.format(date));
+        return new DirName(Long.valueOf(count), dateFormat.format(date));
       } catch(Exception e) {
-        LOG.info("Ignoring invalid directory name: "+dirName+" cause: "+e.getCause().toString());
+        LOG.info("Ignoring invalid directory name: "+dirName+" cause: "+e);
         return null;
       }
     }
     
-    public String getCount() {
+    public long getCount() {
       return count;
     }
-    public void setCount(String count) {
+    public void setCount(long count) {
       this.count = count;
     }
     public String getDate() {
