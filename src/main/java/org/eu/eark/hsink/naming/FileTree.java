@@ -2,11 +2,13 @@ package org.eu.eark.hsink.naming;
 
 import java.io.IOException;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.TreeSet;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
@@ -29,6 +31,7 @@ public class FileTree {
   
   private void initialize() throws IOException {
     ArrayList<String> strNames = filer.getDirNames();
+    if(strNames == null) return;
     Iterator<String> it = strNames.iterator();
     while(it.hasNext()) {
       String strName = it.next();
@@ -45,36 +48,44 @@ public class FileTree {
   }
   
   public synchronized String nextDirName() {
-    long count = 0L;
-    if(dirNames.size() > 0) {
-      DirName last = dirNames.last();
-      count = Long.valueOf(last.getCount());
-    } 
+    LOG.fine("generating next dir name");
     DirName next = new DirName();
-    next.setCount(new Long(count+1L));
-    dirNames.add(next);
+    if(dirNames.size() > 0) {
+      DirName last = dirNames.first();
+      LOG.fine("last dir name: "+last);
+      LOG.fine("next.date: "+next.date+" last.date: "+last.date+" equals? "+next.date.equals(last.date));
+      if(next.date.equals(last.date)) {
+        next.setCount(last.getCount()+1L);
+      }
+    } 
     LOG.fine("new dir name: "+next);
+    dirNames.add(next);
     return next.toString();
   }
-  
+
   static class DirName implements Comparable<DirName> {
     
     long count = -1L;
-    String date = null;    
+    Date date = null;    
     public static final String DELIMITER = ".";
     public static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     
     public DirName() {
-      date = dateFormat.format(new Date());
+      try {
+        date = dateFormat.parse(dateFormat.format(new Date()));
+      } catch(ParseException e) {
+        LOG.log(Level.SEVERE, "Unexpected error creating new DirName", e);
+      }
+      count = 1L;
     }
     
-    private DirName(long count, String date) {
+    private DirName(long count, String date) throws ParseException {
       this.count = count;
-      this.date = date;
+      this.date = dateFormat.parse(date);
     }
         
     public String toString() {
-      return new StringBuffer().append(count).append(DELIMITER).append(date).toString();
+      return new StringBuffer().append(count).append(DELIMITER).append(dateFormat.format(date)).toString();
     }
     
     public static DirName parse(String dirName) {
@@ -100,16 +111,20 @@ public class FileTree {
       this.count = count;
     }
     public String getDate() {
-      return date;
+      return dateFormat.format(date);
     }
-    public void setDate(String date) {
-      this.date = date;
+    public void setDate(String date) throws ParseException {
+      this.date = dateFormat.parse(date);
     }
     
     @Override
     public int compareTo(DirName dirName) {
-      // TODO Auto-generated method stub
-      return this.toString().compareTo(dirName.toString());
+      //this.toString().compareTo(dirName.toString());      
+      if(this.date.before(dirName.date)) return 1;
+      if(this.date.after(dirName.date)) return -1;
+      if(this.count < dirName.count) return 1;
+      if(this.count > dirName.count) return -1;  
+      return 0;
     }
   }
   

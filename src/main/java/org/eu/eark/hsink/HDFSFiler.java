@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -15,7 +16,10 @@ import org.apache.commons.logging.Log;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocatedFileStatus;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.RemoteIterator;
+import org.eu.eark.hsink.properties.ConfigProperties;
 
 public class HDFSFiler extends Filer {
 
@@ -30,17 +34,30 @@ public class HDFSFiler extends Filer {
   public HDFSFiler(String fsBasePath) throws IOException, URISyntaxException {
     super(fsBasePath);
     LOG.fine("HDFSFiler()");
+    //hadoop requires log4j initialization
     org.apache.log4j.BasicConfigurator.configure();
-    org.apache.log4j.Logger.getRootLogger().setLevel(
-        org.apache.log4j.Level.ERROR);
+    org.apache.log4j.Logger.getRootLogger().setLevel(org.apache.log4j.Level.ERROR);
     URI fsBaseURI = new URI(fsBasePath);
     this.basePath = new Path(fsBaseURI);
-    org.apache.hadoop.conf.Configuration hadoopConf = new org.apache.hadoop.conf.Configuration(
-        true);
-    hadoopConf.addResource("/home/rainer/develop/hadoop/conf/core-site.xml");
-    hadoopConf.addResource("/home/rainer/develop/hadoop/conf/hdfs-site.xml");
+    org.apache.hadoop.conf.Configuration hadoopConf = 
+        new org.apache.hadoop.conf.Configuration(true);
+    String pathToCoreSite = ConfigProperties.getInstance().getProperty("core-site");
+    String pathToHdfsSite = ConfigProperties.getInstance().getProperty("hdfs-site");
+    if(pathToCoreSite != null && !pathToCoreSite.equals(""))
+      hadoopConf.addResource(pathToCoreSite);
+    if(pathToHdfsSite != null && !pathToHdfsSite.equals(""))
+      hadoopConf.addResource(pathToHdfsSite);
     // hadoopConf.set("fs.defaultFS", "hdfs://localhost:8020");
-    hadoopConf.set("fs.default.name", "hdfs://localhost:9000/");
+    if(hadoopConf.get("fs.default.name") == null || 
+       hadoopConf.get("fs.default.name").equals("") ||
+       hadoopConf.get("fs.default.name").equals("file:///")) {
+      String defaultFsDefaultName = ConfigProperties.getInstance().getProperty("fs.default.name");
+      if(defaultFsDefaultName == null || defaultFsDefaultName.equals(""))
+        defaultFsDefaultName = "hdfs://localhost:8020";
+      LOG.info("fs.default.name not detected from core-site.xml, defaulting to " +
+          defaultFsDefaultName);      
+      hadoopConf.set("fs.default.name", defaultFsDefaultName);
+    }
     // configure implementation for local and remote fs
     hadoopConf.set("fs.hdfs.impl",
         org.apache.hadoop.hdfs.DistributedFileSystem.class.getName());
@@ -49,6 +66,8 @@ public class HDFSFiler extends Filer {
     LOG.fine("HDFSFiler() - before getFS");
     hdfs = FileSystem.get(hadoopConf);
     LOG.fine("HDFSFiler() - after getFS");
+    LOG.fine("HDFS working dir: "+hdfs.getWorkingDirectory()+ " home dir: "+hdfs.getHomeDirectory()+ " basePath: "+basePath.toString()
+          + "fs.default.name: "+hadoopConf.get("fs.default.name"));
     basePath = new Path(hdfs.getHomeDirectory(), basePath);
     LOG.fine("HDFSFiler() - initialized. basePath="+basePath.toString());    
   }
@@ -95,15 +114,18 @@ public class HDFSFiler extends Filer {
     LOG.fine("HDFSFiler.writeStream() - done");
   }
   
-  public List readDirectories() {
-    //hdfs.g
-    return null;
-  }
-
   @Override
   public ArrayList<String> getDirNames() throws IOException {
-    // TODO Auto-generated method stub
-    return null;
+    Path path=basePath;
+    ArrayList<String> names = new ArrayList<String>();
+    RemoteIterator<LocatedFileStatus> it = hdfs.listFiles(new Path(fsBasePath), false);
+    while(it.hasNext()) {
+      String fileName = it.next().getPath().getName();
+      LOG.info("HDFS found dirName in fsBasePath: "+fileName);
+      names.add(fileName);
+    }
+    return names;
+    
   }
 
 }

@@ -78,22 +78,17 @@
 		-->
 		<!-- -->
 		<dependency>
-			<groupId>org.apache.hadoop</groupId>
-			<artifactId>hadoop-common</artifactId>
-			<!-- overwriting scope -->
-			<scope>compile</scope>
-		</dependency>
+        	<groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+			<!-- overwriting scope -->            
+            <scope>compile</scope>
+         </dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-client</artifactId>
 			<!-- overwriting scope -->
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
-        	<groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-common</artifactId>
-            <scope>compile</scope>
-         </dependency>
          <!-- required to access hdfs-->
          <dependency>
          	<groupId>org.apache.hadoop</groupId>
