@@ -15,6 +15,9 @@ import java.util.regex.Pattern;
 import org.eu.eark.hsink.Filer;
 import org.eu.eark.hsink.Main;
 
+/*
+ * A class for reading and generating successive directory names ordered by creation date
+ */
 public class FileTree {
   
   private final static Logger LOG = Logger.getLogger(FileTree.class.getName());
@@ -90,10 +93,10 @@ public class FileTree {
     
     public static DirName parse(String dirName) {
       try {
-        LOG.fine("Parsing dirName: "+dirName);
+        LOG.finest("Parsing dirName: "+dirName);
         String[] valval = dirName.split(Pattern.quote(DELIMITER));
-        LOG.fine("valval.length: "+ (valval == null ? "-null-" : valval.length));
-        LOG.fine("Parsing result: "+valval[0]+" " +valval[1]);
+        LOG.finest("valval.length: "+ (valval == null ? "-null-" : valval.length));
+        LOG.finest("Parsing result: "+valval[0]+" " +valval[1]);
         if(valval.length != 2) throw new Exception("error parsing directory name: "+dirName);
         String count = valval[0];
         Date date = dateFormat.parse(valval[1]);

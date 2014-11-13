@@ -94,12 +94,14 @@ public class FileResource {
 
     try {
 	    LOG.log(Level.INFO, "putFile: "+fileName);    	
+      URI resourcePath = UriBuilder.fromResource(FileResource.class).build();
+      LOG.fine("resourcePath: "+resourcePath);
 	    Filer filer = this.getFiler();
 	    String dirName = FileTree.getInstance(filer).nextDirName();
 	    LOG.log(Level.FINE, "directory id: "+dirName);
 	    String filePath = filer.writeFile(fileInputStream, fileName, dirName);
 	    LOG.log(Level.FINE, "filePath: "+filePath);
-	    URI widgetId = new URI(this.WEB_BASE_PATH+'/'+filePath);
+	    URI widgetId = new URI(resourcePath.toString()+'/'+this.WEB_BASE_PATH+'/'+filePath);
 	    LOG.log(Level.FINE, "putFile: "+widgetId.toASCIIString()+" done");
 	    return Response.created(widgetId).build();
 	    //TODO return the ID<Long>
