@@ -89,27 +89,47 @@ public class Main {
      * while(en.hasMoreElements()) { System.out.println(en.nextElement()); }
      */
     // [0].setFormatter(new BasicLogFormatter());
-    final HttpServer server = startServer();
     
-    Enumeration<String> en = LogManager.getLogManager().getLoggerNames();
-    while(en.hasMoreElements()) { 
-      String loggerName = en.nextElement();
-      //suppress logging of EOFException at fine level
-      if(loggerName.equals("org.glassfish.grizzly.nio.transport.TCPNIOTransport") ||
-         loggerName.equals("org.glassfish.grizzly.filterchain.DefaultFilterChain")) {
-        Logger logger = LogManager.getLogManager().getLogger(loggerName);
-        logger.setLevel(Level.INFO);
-        System.out.println(loggerName+" ... level set to INFO");
-      } else {
-        //System.out.println(loggerName);
-      }
-    }
+    HttpServer server = null;
+    
+    try {
+	    server = startServer();
+	    
+	    Enumeration<String> en = LogManager.getLogManager().getLoggerNames();
+	    while(en.hasMoreElements()) { 
+	      String loggerName = en.nextElement();
+	      //suppress logging of EOFException at fine level
+	      if(loggerName.equals("org.glassfish.grizzly.nio.transport.TCPNIOTransport") ||
+	         loggerName.equals("org.glassfish.grizzly.filterchain.DefaultFilterChain")) {
+	        Logger logger = LogManager.getLogManager().getLogger(loggerName);
+	        logger.setLevel(Level.INFO);
+	        System.out.println(loggerName+" ... level set to INFO");
+	      } else {
+	        //System.out.println(loggerName);
+	      }
+	    }
      
-    // ServerConfiguration serverConfig = server.getServerConfiguration().;
-    System.out.println(String.format(
-        "Jersey app started with WADL available at "
-            + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
-    System.in.read();
-    server.shutdown();
+	    // ServerConfiguration serverConfig = server.getServerConfiguration().;
+	    //System.out.println(String.format(
+	    //    "Jersey app started with WADL available at "
+	    //        + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
+	
+	    System.out.println(String.format(
+	        "Jersey app started with WADL available at "
+	            + "%sapplication.wadl", BASE_URI));
+	    
+    //System.in.read();
+    //server.shutdown();
+    
+	    Thread.currentThread().join();
+    } catch (Exception ioe) {
+    	System.err.println(ioe);
+    } finally {
+    	try {
+    		server.shutdown();
+    	} catch (Exception ioe) {
+    		System.err.println(ioe);
+    	}
+    }
   }
 }

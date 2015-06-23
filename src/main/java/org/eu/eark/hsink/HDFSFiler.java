@@ -14,6 +14,7 @@ import java.util.logging.Logger;
 
 import org.apache.commons.logging.Log;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.LocatedFileStatus;
@@ -117,13 +118,28 @@ public class HDFSFiler extends Filer {
   @Override
   public ArrayList<String> getDirNames() throws IOException {
     Path path=basePath;
+    LOG.info("getDirNames() in: "+basePath);
+    LOG.info("getDirNames() in: "+fsBasePath);
     ArrayList<String> names = new ArrayList<String>();
-    RemoteIterator<LocatedFileStatus> it = hdfs.listFiles(new Path(fsBasePath), false);
-    while(it.hasNext()) {
-      String fileName = it.next().getPath().getName();
-      LOG.info("HDFS found dirName in fsBasePath: "+fileName);
-      names.add(fileName);
+    
+    //RemoteIterator<LocatedFileStatus> it = hdfs.listFiles(new Path(fsBasePath), false);
+    //RemoteIterator<LocatedFileStatus> it = hdfs.listFiles(basePath, false);
+    
+    FileStatus[] status = hdfs.listStatus(basePath);
+    LOG.fine("found entries in data directory: "+status.length);
+    
+    for (int i=0;i<status.length;i++){
+        String fileName = status[i].getPath().getName();
+        LOG.info("HDFS found dirName in fsBasePath: "+fileName);
+        names.add(fileName);
     }
+    
+    //while(it.hasNext()) {
+    //  String fileName = it.next().getPath().getName();
+    //  LOG.info("HDFS found dirName in fsBasePath: "+fileName);
+    //  names.add(fileName);
+    //}
+
     return names;
     
   }
