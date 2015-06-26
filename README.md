@@ -1,10 +1,19 @@
-HDFS Resource 
-=============
+#HSINK - A REST service for transfing large files 
+
+* Supports standard REST clients like *curl* or *wget* 
+* A Java Client is available by [dm-hdfs-storage-client](https://github.com/eark-project/dm-hdfs-storage-client)
+* Supports the FileSystem and HDFS for storing the received files
+
+##About
+HSINk is a 
 
 eArk WP6 - reference implementation: bulk load into HDFS
 
 A REST service to dump data onto HDFS.
 
+```bash
+  java -cp ./hsink-service-1.0-SNAPSHOT-jar-with-dependencies.jar:/usr/lib/hadoop/hadoop-common-2.0.0-cdh4.2.2.jar:/usr/lib/hadoop/lib/log4j-1.2.17.jar:/usr/lib/hadoop/lib/commons-configuration-1.6.jar:/usr/lib/hadoop/hadoop-auth-2.0.0-cdh4.2.2.jar:/usr/lib/hadoop/lib/slf4j-api-1.6.1.jar:/usr/lib/hadoop/lib/slf4j-log4j12-1.6.1.jar:/usr/lib/hadoop-hdfs/hadoop-hdfs-2.0.0-cdh4.2.2.jar org.eu.eark.hsink.Main filer=hdfsFiler fs.default.name=hdfs://localhost:8020 BASE_URI=http://81.189.135.189:8081/hsink/ > grizzly.out 2>&1 &
+```
 
 TODOs
 -----
