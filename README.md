@@ -42,7 +42,15 @@ Please note that the Maven dependency scope for Hadoop related libraries is set 
 Jersey applications can be hosted in using different deployment methods and environments. For deploying hsink in a servlet container please consult the official Jersey documentation, section [4.7. Servlet-based Deployment](https://jersey.java.net/documentation/2.11/deployment.html#deployment.servle).
 
 ##Configuring the Service
+The main configuration file for HSink is *config.properties* is residing under *src/main/resources/*. The files *commons-logging.properties* and *logging.properties configuration* configure the logging granularity used by HSink and libraries it depends on. All configuration files are packaged with the application when creating a Jar file.
 
+In order to configure HSink one can either overwrite the default properties using a command line parameter or change the file *config.properties* and re-package the service in order persist the configuration. The main configuration parameters are:
+
+| *property-name* | *default value* | *meaning*  |
+|-----------------|:---------------:|-----------:|  
+| filer           | fsFiler         | Switch for configuring target file system. Accepted values are *fsFiler* or *hdfsFiler*.
+| BASE_URI        | http://localhost:8081/hsink | Default Address the service is bound to. This must be changed if a service should be accessible from a location different then localhost.
+  
 
 TODOs
 -----
