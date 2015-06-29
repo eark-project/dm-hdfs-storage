@@ -44,13 +44,21 @@ Jersey applications can be hosted in using different deployment methods and envi
 ##Configuring the Service
 The main configuration file for HSink is *config.properties* is residing under *src/main/resources/*. The files *commons-logging.properties* and *logging.properties configuration* configure the logging granularity used by HSink and libraries it depends on. All configuration files are packaged with the application when creating a Jar file.
 
-In order to configure HSink one can either overwrite the default properties using a command line parameter or change the file *config.properties* and re-package the service in order persist the configuration. The main configuration parameters are:
+In order to configure HSink one can either overwrite the default properties by passing new key-value pairs as command-line parameters or change the file *config.properties* and re-package the service in order persist the configuration. The main configuration parameters are:
 
 | *property-name* | *default value* | *meaning*  |
 |-----------------|:---------------:|-----------:|  
-| filer           | fsFiler         | Switch for configuring target file system. Accepted values are *fsFiler* or *hdfsFiler*.
-| BASE_URI        | http://localhost:8081/hsink | Default Address the service is bound to. This must be changed if a service should be accessible from a location different then localhost.
-  
+| filer           | fsFiler         | Switch for configuring target file system. Accepted values are *fsFiler* or *hdfsFiler*. |
+| BASE_URI        | http://localhost:8081/hsink | Default Address the service is bound to. This must be changed if a service should be accessible from a location different then localhost. |
+| fs.default.name | hdfs://localhost:8020 | URI on HDFS Namenode to accept file-system requests. Typical values are *hdfs://localhost:8020* or *hdfs://localhost:9000*. |
+| FS_BASE_PATH    | data            | A relative path which serves as the basis for storing data on the service. The directory is either relative to the location where the service has been started using fsFiler, or relative to the HDFS home directory of the user starting the service using hdfsFiler mode. | 
+| core-site       | optional property | Path to Hadoop core-site.xml configuration file. Not required of HDFS URL is correctly configured. |
+| hdfs-site       | optional property | Path to Hadoop hdfs-site.xml configuration file. Not required of HDFS URL is correctly configured. |
+
+Overwriting config properties using the command-line:
+```bash
+java -jar target/hsink-service-1.0-SNAPSHOT-jar-with-dependencies.jar FS_BASE_PATH=uploads
+```
 
 TODOs
 -----
