@@ -1,4 +1,4 @@
-#HSink - A REST service for transfing large files 
+#HSink - A REST service for transfering large files 
 
 * Supports standard REST clients like *curl* or *wget* 
 * A Java client is available by [dm-hdfs-storage-client](https://github.com/eark-project/dm-hdfs-storage-client)
@@ -40,6 +40,8 @@ Please note that the Maven dependency scope for Hadoop related libraries is set 
 ```
 ##Starting the services using a Servlet container.
 Jersey applications can be hosted in using different deployment methods and environments. For deploying hsink in a servlet container please consult the official Jersey documentation, section [4.7. Servlet-based Deployment](https://jersey.java.net/documentation/2.11/deployment.html#deployment.servle).
+
+##Configuring the Service
 
 
 TODOs
