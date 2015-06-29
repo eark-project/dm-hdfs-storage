@@ -42,12 +42,12 @@ public class FileResource {
   @Context
   private ServletContext context;
     
-  public static String FSFILER = "fsFiler";
-  public static String HDFSFILER = "hdfsFiler";
-  public static String FS_BASE_PATH = "data";
-  
-  public static String WEB_BASE_PATH = "files";
+  public final static String FSFILER = "fsFiler";
+  public final static String HDFSFILER = "hdfsFiler";
+  public final static String FS_BASE_PATH = "data";  
+  public final static String WEB_BASE_PATH = "files";
    
+  public static String fsBasePath;  
   public String filerType = null;
   private Properties props = null;
     
@@ -59,11 +59,20 @@ public class FileResource {
   public void init() {
     LOG.log(Level.INFO, "FileResource initialized");
     filerType = HDFSFILER;
+    fsBasePath = FS_BASE_PATH;  
+
     String property = ConfigProperties.getInstance().getProperty("filer");
     if(property == null || (!property.equals(FSFILER) && !property.equals(HDFSFILER)) ) {
 	    LOG.log(Level.WARNING, "No filer property found. Setting filerType to HDFSFILER");
     } else {
 	    filerType = property;
+	    LOG.log(Level.INFO, "Filer set to "+filerType);
+    }
+    property = ConfigProperties.getInstance().getProperty("FS_BASE_PATH");
+    if(property == null || property.equals("")) {
+	    LOG.log(Level.WARNING, "No FS_BASE_PATH property found. Setting relative path to: "+fsBasePath);
+    } else {
+	    fsBasePath = property;
 	    LOG.log(Level.INFO, "Filer set to "+filerType);
     }
   }
@@ -154,9 +163,9 @@ public class FileResource {
     
   private Filer getFiler() throws IOException, URISyntaxException {
     if(filerType.equals(FSFILER)) {
-      return new FSFiler(FS_BASE_PATH);
+      return new FSFiler(fsBasePath);
     } else if(filerType.equals(HDFSFILER)) {
-      Filer f = new HDFSFiler(FS_BASE_PATH);
+      Filer f = new HDFSFiler(fsBasePath);
       return f;
     } else {
       return null;
