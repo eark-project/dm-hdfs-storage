@@ -61,7 +61,7 @@ java -jar target/hsink-service-1.0-SNAPSHOT-jar-with-dependencies.jar FS_BASE_PA
 ```
 
 ##Using the Service with curl
-HSink makes use of chunked transfer encoding in order to allow a client to transmit large files using HTTP. The data transfer mechanism makes use of the Transfer-Encoding HTTP header and therefore requires a client that supports HTTP/1.1 like *curl*. 
+HSink makes use of chunked transfer encoding allowing a client to transmit large files using HTTP. The data transfer mechanism makes use of the Transfer-Encoding HTTP header and therefore requires a client that supports HTTP/1.1 like *curl*. 
 
 Example curl request:
 ```bash
@@ -92,6 +92,13 @@ Content-Length: 0
 
 ##Using the Service with a Java application
 A Java client for HSink that makes use of the Jersey client API is available through [dm-hdfs-storage-client](https://github.com/eark-project/dm-hdfs-storage-client). 
+
+```bash
+usage: java -jar JARFILE [options] [source URI] [target URI]
+...file upload:   java -jar client.jar -u ./file [http://localhost:8081/hsink]
+...file download: java -jar client.jar -d http://localhost:8081/hsink/.../file ./file
+...roundtrip test: java -jar client.jar -t ./file [http://localhost:8081/hsink]
+```
 
 ##Configuring Apache ReverseProxy
 TODO
