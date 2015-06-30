@@ -90,7 +90,7 @@ Location: http://localhost:8081/hsink/fileresource/files/2.2015-06-30/cmd.txt
 Content-Length: 0
 ```
 
-##Using the Service with a Java application
+##Using the Service from Java
 A Java client for HSink that makes use of the Jersey client API is available through [dm-hdfs-storage-client](https://github.com/eark-project/dm-hdfs-storage-client). 
 
 ```bash
