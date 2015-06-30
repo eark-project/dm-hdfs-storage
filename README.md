@@ -26,7 +26,7 @@ cd dm-hdfs-storage
 mvn clean package
 ```
 
-##Starting the service using embedded HTTP sever.
+##Starting the service using embedded HTTP server.
 Hsink can be started in standalone mode based on an embedded Grizzely service using the command below. The application should output a text similar to: "Jersey app started with WADL available at http://localhost:8081/hsink/application.wadl".   
 
 ```bash
