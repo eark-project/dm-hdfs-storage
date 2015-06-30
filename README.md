@@ -1,7 +1,7 @@
 #HSink - A REST service for transfering large files 
 
-* Supports standard REST clients like *curl* or *wget* 
-* A Java client is available by [dm-hdfs-storage-client](https://github.com/eark-project/dm-hdfs-storage-client)
+* Works with standard REST clients like *curl* (supporting HTTP/1.1)  
+* A Java client is available through [dm-hdfs-storage-client](https://github.com/eark-project/dm-hdfs-storage-client)
 * Supports the FileSystem and HDFS for storing data
 
 ##About
@@ -27,13 +27,13 @@ mvn clean package
 ```
 
 ##Starting the service using embedded HTTP sever.
-Hsink can be started in standalone mode using the embedded Grizzely service using the command below. The application should output a text similar to: "Jersey app started with WADL available at http://localhost:8081/hsink/application.wadl".   
+Hsink can be started in standalone mode based on an embedded Grizzely service using the command below. The application should output a text similar to: "Jersey app started with WADL available at http://localhost:8081/hsink/application.wadl".   
 
 ```bash
 java -jar target/hsink-service-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
-Please note that the Maven dependency scope for Hadoop related libraries is set to *provided* by default. If HSink is used in combination with HDFS, it is therefore required to either include the required libraries with the Jar-File by changing the dependency scope to *compile*, or to launch HSink's main class *org.eu.eark.hsink.Main* with a Java classpath pointing to the required libraries of an Hadoop installation, as shown below:
+Please note that the Maven dependency scope for Hadoop related libraries is set to *provided* by default. If HSink is used in combination with HDFS, it is therefore required to either include the required libraries with the Jar-File by changing the dependency scope to *compile*, or to launch HSink's main class *org.eu.eark.hsink.Main* with a Java classpath pointing to the required libraries of an Hadoop installation, as shown below. (Please not that the service is started in the background):
 
 ```bash
   java -cp ./hsink-service-1.0-SNAPSHOT-jar-with-dependencies.jar:/usr/lib/hadoop/hadoop-common-2.0.0-cdh4.2.2.jar:/usr/lib/hadoop/lib/log4j-1.2.17.jar:/usr/lib/hadoop/lib/commons-configuration-1.6.jar:/usr/lib/hadoop/hadoop-auth-2.0.0-cdh4.2.2.jar:/usr/lib/hadoop/lib/slf4j-api-1.6.1.jar:/usr/lib/hadoop/lib/slf4j-log4j12-1.6.1.jar:/usr/lib/hadoop-hdfs/hadoop-hdfs-2.0.0-cdh4.2.2.jar org.eu.eark.hsink.Main filer=hdfsFiler fs.default.name=hdfs://localhost:8020 BASE_URI=http://81.189.135.189:8081/hsink/ > grizzly.out 2>&1 &
@@ -50,29 +50,55 @@ In order to configure HSink one can either overwrite the default properties by p
 |-----------------|:---------------:|-----------:|  
 | filer           | fsFiler         | Switch for configuring target file system. Accepted values are *fsFiler* or *hdfsFiler*. |
 | BASE_URI        | http://localhost:8081/hsink | Default Address the service is bound to. This must be changed if a service should be accessible from a location different then localhost. |
-| fs.default.name | hdfs://localhost:8020 | URI on HDFS Namenode to accept file-system requests. Typical values are *hdfs://localhost:8020* or *hdfs://localhost:9000*. |
 | FS_BASE_PATH    | data            | A relative path which serves as the basis for storing data on the service. The directory is either relative to the location where the service has been started using fsFiler, or relative to the HDFS home directory of the user starting the service using hdfsFiler mode. | 
+| fs.default.name | hdfs://localhost:8020 | URI on HDFS Namenode to accept file-system requests. Typical values are *hdfs://localhost:8020* or *hdfs://localhost:9000*. |
 | core-site       | optional property | Path to Hadoop core-site.xml configuration file. Not required of HDFS URL is correctly configured. |
 | hdfs-site       | optional property | Path to Hadoop hdfs-site.xml configuration file. Not required of HDFS URL is correctly configured. |
 
-Overwriting config properties using the command-line:
+Overwriting config properties using the command-line, for example FS_BASE_PATH:
 ```bash
 java -jar target/hsink-service-1.0-SNAPSHOT-jar-with-dependencies.jar FS_BASE_PATH=uploads
 ```
 
-TODOs
------
-- use embedded jetty woth jaxrs/jersey or resteasy to create REST service
-- single JAR which can be run "-jar"
-- communicate needs with ESS
-- upload raw data to HDFS
-- maybe create entry in Lily on AIP level (just 1 entry for whole package)
-- in the end notify callback EPP
-- unpack payload and put into hdfs also
-  - maybe extract content from aip and put into
-- maybe create folder watcher that iuploads file arriving in ftp folder
-- test integration with EPP
-- experiment about 2G boundary when using HTTP put/post - can we upload hige files?
-- data integrity during upload - AIP checksum? -> check checksum
-- give unique ID to new AIP
-- store with unique ID into Lily (or is the ID the Lily ID?)
+##Using the Service with curl
+HSink makes use of chunked transfer encoding in order to allow a client to transmit large files using HTTP. The data transfer mechanism makes use of the Transfer-Encoding HTTP header and therefore requires a client that supports HTTP/1.1 like *curl*. 
+
+Example curl request:
+```bash
+curl -v -X PUT -H "Content-Type:application/octet-stream" -H "Transfer-Encoding: chunked" http://localhost:8081/hsink/fileresource/files/cmd.txt -T ./cmd.txt
+```
+
+The curl example uploads a file called *./cmd.txt* to HSink. The specified remote filename is also *./cmd.txt*. Once the file has been received by the HSink, the service responds with an URL of the generated resource which includes a generated identifier for the upload, as shown below. The generated URL can be used to download the file.     
+
+Generated HTTP request:
+```bash
+PUT /hsink/fileresource/files/cmd.txt HTTP/1.1
+User-Agent: curl/7.35.0
+Host: localhost:8081
+Accept: */*
+Content-Type:application/octet-stream
+Transfer-Encoding: chunked
+Expect: 100-continue
+```
+
+Received HTTP response:
+```bash
+HTTP/1.1 100 Continue
+HTTP/1.1 201 Created
+Date: Tue, 30 Jun 2015 08:52:27 GMT
+Location: http://localhost:8081/hsink/fileresource/files/2.2015-06-30/cmd.txt
+Content-Length: 0
+```
+
+##Using the Service with a Java application
+A Java client for HSink that makes use of the Jersey client API is available through [dm-hdfs-storage-client](https://github.com/eark-project/dm-hdfs-storage-client). 
+
+##Configuring Apache ReverseProxy
+TODO
+
+
+
+##TODOs (E-ARK Project)
+- Data integrity during upload - AIP checksum?
+- Give unique ID to new AIP
+- Store with unique ID into Lily (or is the ID the Lily ID?)
