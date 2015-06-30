@@ -18,7 +18,7 @@ git clone <THE_PROJECT_URL>
 mvn clean install
 ```
 
-HSink can be easily built using Maven. Please check Maven dependencies and versions in case the service is utilzed in combination with HDFS. 
+HSink can be easily built using Maven. Please check Maven dependencies and versions in case the service is utilized in combination with HDFS. 
 
 ```bash
 git clone https://github.com/eark-project/dm-hdfs-storage.git
