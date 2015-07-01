@@ -116,7 +116,7 @@ public class FileResource {
 	    String filePath = filer.writeFile(fileInputStream, fileName, dirName);
 	    LOG.log(Level.FINE, "filePath: "+filePath);
 	    try {
-	    	sendMessage(fsBasePath + filePath);
+	    	sendMessage(fsBasePath + "/" + filePath);
 	    } catch (Exception ex) {
 	    	LOG.log(Level.WARNING, "Can't send message", ex);
 	    }
@@ -138,7 +138,7 @@ public class FileResource {
 		Connection connection = factory.newConnection();
 		Channel channel = connection.createChannel();
 		
-		byte[] messageBodyBytes = "files".getBytes();
+		byte[] messageBodyBytes = filePath.getBytes();
 		channel.basicPublish("", "file-ingest", null, messageBodyBytes);
 		
 		channel.close();
