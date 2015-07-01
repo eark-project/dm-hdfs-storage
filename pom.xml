@@ -118,6 +118,11 @@
             <artifactId>slf4j-log4j12</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+			<groupId>com.rabbitmq</groupId>
+			<artifactId>amqp-client</artifactId>
+			<version>3.5.3</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

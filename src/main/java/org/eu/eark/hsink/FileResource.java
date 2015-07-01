@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Properties;
+import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -32,6 +33,10 @@ import javax.ws.rs.core.UriBuilder;
 import org.apache.hadoop.conf.Configuration;
 import org.eu.eark.hsink.naming.FileTree;
 import org.eu.eark.hsink.properties.ConfigProperties;
+
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 
 /**
  * Root resource (exposed at "myresource" path)
@@ -110,6 +115,11 @@ public class FileResource {
 	    LOG.log(Level.FINE, "directory id: "+dirName);
 	    String filePath = filer.writeFile(fileInputStream, fileName, dirName);
 	    LOG.log(Level.FINE, "filePath: "+filePath);
+	    try {
+	    	sendMessage(fsBasePath + filePath);
+	    } catch (Exception ex) {
+	    	LOG.log(Level.WARNING, "Can't send message", ex);
+	    }
 	    URI widgetId = new URI(resourcePath.toString()+'/'+this.WEB_BASE_PATH+'/'+filePath);
 	    LOG.log(Level.FINE, "putFile: "+widgetId.toASCIIString()+" done");
 	    return Response.created(widgetId).build();
@@ -122,7 +132,20 @@ public class FileResource {
   }
     
   
-  @GET
+	private void sendMessage(String filePath) throws IOException, TimeoutException {
+		ConnectionFactory factory = new ConnectionFactory();
+		factory.setHost("localhost");
+		Connection connection = factory.newConnection();
+		Channel channel = connection.createChannel();
+		
+		byte[] messageBodyBytes = "files".getBytes();
+		channel.basicPublish("", "file-ingest", null, messageBodyBytes);
+		
+		channel.close();
+		connection.close();
+	}
+
+@GET
   @Path("/files/{fileName}")
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
   
