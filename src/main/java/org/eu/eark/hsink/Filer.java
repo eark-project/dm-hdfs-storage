@@ -57,8 +57,12 @@ public abstract class Filer {
   public abstract void writeStream(OutputStream outputStream, String fileName)
       throws IOException;
   
-  public abstract ArrayList<String> getDirNames() 
+  public abstract ArrayList<String> getElements(String dirName)
       throws IOException;
+  
+  public ArrayList<String> getDirNames() throws IOException {
+    return getElements("");
+  }
 
   // public abstract int getMD5Sum(String path);
 

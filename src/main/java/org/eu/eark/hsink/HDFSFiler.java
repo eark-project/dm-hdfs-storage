@@ -116,22 +116,21 @@ public class HDFSFiler extends Filer {
   }
   
   @Override
-  public ArrayList<String> getDirNames() throws IOException {
-    Path path=basePath;
-    LOG.info("getDirNames() in: "+basePath);
-    LOG.info("getDirNames() in: "+fsBasePath);
+  public ArrayList<String> getElements(String dirName) throws IOException {
+    String path = basePath + "/" + dirName;
+    LOG.info("getDirNames() in: " + path);
     ArrayList<String> names = new ArrayList<String>();
     
     //RemoteIterator<LocatedFileStatus> it = hdfs.listFiles(new Path(fsBasePath), false);
     //RemoteIterator<LocatedFileStatus> it = hdfs.listFiles(basePath, false);
     
-    FileStatus[] status = hdfs.listStatus(basePath);
+    FileStatus[] status = hdfs.listStatus(new Path(path));
     LOG.fine("found entries in data directory: "+status.length);
     
-    for (int i=0;i<status.length;i++){
-        String fileName = status[i].getPath().getName();
-        LOG.info("HDFS found dirName in fsBasePath: "+fileName);
-        names.add(fileName);
+    for (FileStatus s : status) {
+      String fileName = s.getPath().getName();
+      LOG.info("HDFS found dirName in fsBasePath: "+fileName);
+      names.add(fileName);
     }
     
     //while(it.hasNext()) {
@@ -141,7 +140,6 @@ public class HDFSFiler extends Filer {
     //}
 
     return names;
-    
   }
 
 }

@@ -7,6 +7,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeSet;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -65,7 +66,20 @@ public class FileTree {
     dirNames.add(next);
     return next.toString();
   }
-
+  
+  public List<String> searchForPath(String fileName) throws IOException {
+    List<String> pathNames = new ArrayList<>();
+    for (DirName dirName : dirNames) {
+      ArrayList<String> files = filer.getElements(dirName.toString());
+      for (String file : files)
+        if (fileName.equals(file)) {
+          LOG.fine(dirName + "/" + fileName);
+          pathNames.add(dirName + "/" + fileName);
+        }
+    }
+    return pathNames;
+  }
+  
   static class DirName implements Comparable<DirName> {
     
     long count = -1L;

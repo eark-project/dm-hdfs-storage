@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
@@ -23,6 +24,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
@@ -68,17 +70,17 @@ public class FileResource {
 
     String property = ConfigProperties.getInstance().getProperty("filer");
     if(property == null || (!property.equals(FSFILER) && !property.equals(HDFSFILER)) ) {
-	    LOG.log(Level.WARNING, "No filer property found. Setting filerType to HDFSFILER");
+      LOG.log(Level.WARNING, "No filer property found. Setting filerType to HDFSFILER");
     } else {
-	    filerType = property;
-	    LOG.log(Level.INFO, "Filer set to "+filerType);
+      filerType = property;
+      LOG.log(Level.INFO, "Filer set to "+filerType);
     }
     property = ConfigProperties.getInstance().getProperty("FS_BASE_PATH");
     if(property == null || property.equals("")) {
-	    LOG.log(Level.WARNING, "No FS_BASE_PATH property found. Setting relative path to: "+fsBasePath);
+      LOG.log(Level.WARNING, "No FS_BASE_PATH property found. Setting relative path to: "+fsBasePath);
     } else {
-	    fsBasePath = property;
-	    LOG.log(Level.INFO, "Filer set to "+filerType);
+      fsBasePath = property;
+      LOG.log(Level.INFO, "Filer set to "+filerType);
     }
   }
 
@@ -107,45 +109,45 @@ public class FileResource {
   {
 
     try {
-	    LOG.log(Level.INFO, "putFile: "+fileName);    	
+      LOG.log(Level.INFO, "putFile: "+fileName);      
       URI resourcePath = UriBuilder.fromResource(FileResource.class).build();
       LOG.fine("resourcePath: "+resourcePath);
-	    Filer filer = this.getFiler();
-	    String dirName = FileTree.getInstance(filer).nextDirName();
-	    LOG.log(Level.FINE, "directory id: "+dirName);
-	    String filePath = filer.writeFile(fileInputStream, fileName, dirName);
-	    LOG.log(Level.FINE, "filePath: "+filePath);
-	    try {
-	    	sendMessage(fsBasePath + "/" + filePath);
-	    } catch (Exception ex) {
-	    	LOG.log(Level.WARNING, "Can't send message", ex);
-	    }
-	    URI widgetId = new URI(resourcePath.toString()+'/'+this.WEB_BASE_PATH+'/'+filePath);
-	    LOG.log(Level.FINE, "putFile: "+widgetId.toASCIIString()+" done");
-	    return Response.created(widgetId).build();
-	    //TODO return the ID<Long>
-	    //return Response.created(createdUri).entity(Entity.text(createdContent)).build();
+      Filer filer = this.getFiler();
+      String dirName = FileTree.getInstance(filer).nextDirName();
+      LOG.log(Level.FINE, "directory id: "+dirName);
+      String filePath = filer.writeFile(fileInputStream, fileName, dirName);
+      LOG.log(Level.FINE, "filePath: "+filePath);
+      try {
+        sendMessage(fsBasePath + "/" + filePath);
+      } catch (Exception ex) {
+        LOG.log(Level.WARNING, "Can't send message", ex);
+      }
+      URI widgetId = new URI(resourcePath.toString()+'/'+this.WEB_BASE_PATH+'/'+filePath);
+      LOG.log(Level.FINE, "putFile: "+widgetId.toASCIIString()+" done");
+      return Response.created(widgetId).build();
+      //TODO return the ID<Long>
+      //return Response.created(createdUri).entity(Entity.text(createdContent)).build();
     } catch(Exception ex) {
-	    LOG.log(Level.INFO, "Error while uploading file "+fileName, ex);
+      LOG.log(Level.INFO, "Error while uploading file "+fileName, ex);
       throw new WebApplicationException(ex);
     }  
   }
     
   
-	private void sendMessage(String filePath) throws IOException, TimeoutException {
-		ConnectionFactory factory = new ConnectionFactory();
-		factory.setHost("localhost");
-		Connection connection = factory.newConnection();
-		Channel channel = connection.createChannel();
-		
-		byte[] messageBodyBytes = filePath.getBytes();
-		channel.basicPublish("", "file-ingest", null, messageBodyBytes);
-		
-		channel.close();
-		connection.close();
-	}
+  private void sendMessage(String filePath) throws IOException, TimeoutException {
+    ConnectionFactory factory = new ConnectionFactory();
+    factory.setHost("localhost");
+    Connection connection = factory.newConnection();
+    Channel channel = connection.createChannel();
+    
+    byte[] messageBodyBytes = filePath.getBytes();
+    channel.basicPublish("", "file-ingest", null, messageBodyBytes);
+    
+    channel.close();
+    connection.close();
+  }
 
-@GET
+  @GET
   @Path("/files/{fileName}")
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
   
@@ -155,7 +157,7 @@ public class FileResource {
     LOG.log(Level.INFO, "getFile(): "+fileName);
     final Filer filer = this.getFiler();
     LOG.log(Level.FINE, "getFile(): after filer initialization");
-	
+  
     StreamingOutput stream = new StreamingOutput() {
       public void write(OutputStream output) throws IOException, WebApplicationException {
       try {
@@ -175,14 +177,34 @@ public class FileResource {
   @GET
   @Path("/files/{pathName}/{fileName}")
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
-  
   public /*Response*/StreamingOutput getFile(@PathParam("pathName") final String pathName, @PathParam("fileName") final String fileName)  throws Exception  {
     
     //TODO propagate errors back to client!
     LOG.log(Level.INFO, "getFile(): "+pathName+"/"+fileName);
     return this.getFile(pathName+"/"+fileName);
   }
-    
+  
+  @GET
+  @Path("/search")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String searchFile(@QueryParam("file") final String fileName)  throws Exception  {
+    LOG.log(Level.INFO, "searchFile(): " + fileName);
+    List<String> pathNames = FileTree.getInstance(getFiler()).searchForPath(fileName);
+    String result = "";
+    for (String pathName : pathNames) {
+      result += pathName + "\n";
+    }
+    return result;
+  }
+  
+  @GET
+  @Path("/retrieve_newest")
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  public StreamingOutput retrieveFile(@QueryParam("file") final String fileName)  throws Exception  {
+    LOG.log(Level.INFO, "retrieveFile(): " + fileName);
+    List<String> pathNames = FileTree.getInstance(getFiler()).searchForPath(fileName);
+    return getFile(pathNames.get(0));
+  }    
     
   private Filer getFiler() throws IOException, URISyntaxException {
     if(filerType.equals(FSFILER)) {
@@ -192,6 +214,6 @@ public class FileResource {
       return f;
     } else {
       return null;
-    }	
+    }  
   }
 }

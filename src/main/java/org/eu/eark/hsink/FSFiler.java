@@ -66,8 +66,8 @@ public class FSFiler extends Filer {
   }
 
   @Override
-  public ArrayList<String> getDirNames() throws IOException {
-    File file = new File(fsBasePath);
+  public ArrayList<String> getElements(String dirName) throws IOException {
+    File file = new File(fsBasePath + "/" + dirName);
     ArrayList<String> names = new ArrayList<String>(Arrays.asList(file.list())); 
     return names;
   }
