@@ -33,6 +33,7 @@ import javax.ws.rs.core.StreamingOutput;
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.hadoop.conf.Configuration;
+import org.eu.eark.hsink.messaging.Sender;
 import org.eu.eark.hsink.naming.FileTree;
 import org.eu.eark.hsink.properties.ConfigProperties;
 
@@ -54,11 +55,11 @@ public class FileResource {
   public final static String FS_BASE_PATH = "data";  
   public final static String WEB_BASE_PATH = "files";
    
-  public static String fsBasePath;  
+  public String fsBasePath = null;  
   public String filerType = null;
+  
   private Properties props = null;
-    
-    
+  private Sender sender = null;
  
   private final static Logger LOG = Logger.getLogger(FileResource.class.getName());
  
@@ -67,6 +68,7 @@ public class FileResource {
     LOG.log(Level.INFO, "FileResource initialized");
     filerType = HDFSFILER;
     fsBasePath = FS_BASE_PATH;  
+    sender = new Sender();
 
     String property = ConfigProperties.getInstance().getProperty("filer");
     if(property == null || (!property.equals(FSFILER) && !property.equals(HDFSFILER)) ) {
@@ -117,11 +119,7 @@ public class FileResource {
       LOG.log(Level.FINE, "directory id: "+dirName);
       String filePath = filer.writeFile(fileInputStream, fileName, dirName);
       LOG.log(Level.FINE, "filePath: "+filePath);
-      try {
-        sendMessage(fsBasePath + "/" + filePath);
-      } catch (Exception ex) {
-        LOG.log(Level.WARNING, "Can't send message", ex);
-      }
+      sender.sendMessage(fsBasePath + "/" + filePath);
       URI widgetId = new URI(resourcePath.toString()+'/'+this.WEB_BASE_PATH+'/'+filePath);
       LOG.log(Level.FINE, "putFile: "+widgetId.toASCIIString()+" done");
       return Response.created(widgetId).build();
@@ -132,20 +130,7 @@ public class FileResource {
       throw new WebApplicationException(ex);
     }  
   }
-    
   
-  private void sendMessage(String filePath) throws IOException, TimeoutException {
-    ConnectionFactory factory = new ConnectionFactory();
-    factory.setHost("localhost");
-    Connection connection = factory.newConnection();
-    Channel channel = connection.createChannel();
-    
-    byte[] messageBodyBytes = filePath.getBytes();
-    channel.basicPublish("", "file-ingest", null, messageBodyBytes);
-    
-    channel.close();
-    connection.close();
-  }
 
   @GET
   @Path("/files/{fileName}")
