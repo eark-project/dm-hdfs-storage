@@ -148,7 +148,7 @@ public class HDFSFiler extends Filer {
 	public String createChecksum(String fileName, MessageDigest md) throws IOException {		
 		
 		byte[] digest = createChecksum(getInputStream(fileName), md);
-		String hex = (new HexBinaryAdapter()).marshal(digest);
+		String hex = (new HexBinaryAdapter()).marshal(digest).toLowerCase();
 		return hex;
 	}
 
