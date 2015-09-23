@@ -103,25 +103,24 @@ usage: java -jar JARFILE [options] [source URI] [target URI]
 ##REST API
 The following documents the REST API provided by Hsink.
 
-*Resource:* /fileresource/files/{fileName} 
-Accepts: [PUT] to creates new file object on storage. Content-type: application/octet-stream. 
-Parameter: String {filename} denotes the desired file name on the server. 
-Response: 201 Created. Location: /fileresource/files/{pathName}/{fileName}.
-
-*Resource:* /fileresource/files/{pathName}/{fileName}
-Accepts: [GET] to retrieve a file based on its URL.
-Parameter: String {pathName} generated file path, String {fileName} remote file name. 
-Response: 200 OK. Content-Type: application/octet-stram
-
-*Resource:* /fileresource/files/{pathName}/{fileName}/digest/{algorithm}
-Accepts: [GET] to retrieve a hash value (digest) for a remote file.
-Parameter: String {pathName} generated file path, String {fileName} remote file name. String {algorithm} the algorithm used to compute the digest - supported values are MD5, SHA-1, and SHA-256.
-Response. 200 OK. Content-Type: text/plain
-
-*Resource:* /fileresource/files?name={fileName}
-Accepts: [GET] to retrive a list of search results in the form  of {pathName}/{fileName} that exactly match a given {fileName}. 
-Parameter: String {fileName} remote file name.
-Response: 200 OK. Content-Type: text/plain
+| *HTTP* |  *Description of Messages*|
+|:----------------|:---------------|  
+| **Resource:**   | /fileresource/files/{fileName} |
+| *Accepts:*      | [PUT] to creates new file object on storage. Content-type: application/octet-stream. |
+| *Parameter:*    | String {filename} denotes the desired file name on the server. |
+| *Response:*     | 201 Created. Location: /fileresource/files/{pathName}/{fileName}. |
+|**Resource:**    |/fileresource/files/{pathName}/{fileName} |
+|*Accepts:*       |[GET] to retrieve a file based on its URL. |
+|*Parameter:*     |String {pathName} generated file path, String {fileName} remote file name. |
+|*Response:*      |200 OK. Content-Type: application/octet-stram |
+|**Resource:**    |/fileresource/files/{pathName}/{fileName}/digest/{algorithm} |
+|*Accepts:*       |[GET] to retrieve a hash value (digest) for a remote file. |
+|*Parameter:*     |String {pathName} generated file path, String {fileName} remote file name. String {algorithm} the algorithm used to compute the digest - supported values are MD5, SHA-1, and SHA-256. |
+|*Response:*      |200 OK. Content-Type: text/plain |
+|**Resource:**    |/fileresource/files?name={fileName} |
+|*Accepts:*       |[GET] to retrive a list of search results in the form  of {pathName}/{fileName} that exactly match a given {fileName}. |
+|*Parameter:*     |String {fileName} remote file name. |
+|*Response:*      |200 OK. Content-Type: text/plain |
 
 
 
