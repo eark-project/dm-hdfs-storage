@@ -187,9 +187,9 @@ public class FileResource {
   }
   
   @GET
-  @Path("/search")
+  @Path("/files")
   @Produces(MediaType.TEXT_PLAIN)
-  public String searchFile(@QueryParam("file") final String fileName)  throws Exception  {
+  public String searchFile(@QueryParam("name") final String fileName)  throws Exception  {
     
   	LOG.log(Level.INFO, "searchFile(): " + fileName);
     TreeSet<DirName> dirNames = FileTree.getInstance(getFiler()).getDirNames();
