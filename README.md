@@ -67,7 +67,7 @@ Example curl request:
 ```bash
 curl -v -X PUT -H "Content-Type:application/octet-stream" -H "Transfer-Encoding: chunked" http://localhost:8081/hsink/fileresource/files/cmd.txt -T ./cmd.txt
 ```
-
+Provided 
 The curl example uploads a file called *./cmd.txt* to HSink. The specified remote filename is also *./cmd.txt*. Once the file has been received by the HSink, the service responds with an URL of the generated resource which includes a generated identifier for the upload, as shown below. The generated URL can be used to download the file.     
 
 Generated HTTP request:
@@ -99,6 +99,31 @@ usage: java -jar JARFILE [options] [source URI] [target URI]
 ...file download: java -jar client.jar -d http://localhost:8081/hsink/.../file ./file
 ...roundtrip test: java -jar client.jar -t ./file [http://localhost:8081/hsink]
 ```
+
+##REST API
+The following documents the REST API provided by Hsink.
+
+*Resource:* /fileresource/files/{fileName} 
+Accepts: [PUT] to creates new file object on storage. Content-type: application/octet-stream. 
+Parameter: String {filename} denotes the desired file name on the server. 
+Response: 201 Created. Location: /fileresource/files/{pathName}/{fileName}.
+
+*Resource:* /fileresource/files/{pathName}/{fileName}
+Accepts: [GET] to retrieve a file based on its URL.
+Parameter: String {pathName} generated file path, String {fileName} remote file name. 
+Response: 200 OK. Content-Type: application/octet-stram
+
+*Resource:* /fileresource/files/{pathName}/{fileName}/digest/{algorithm}
+Accepts: [GET] to retrieve a hash value (digest) for a remote file.
+Parameter: String {pathName} generated file path, String {fileName} remote file name. String {algorithm} the algorithm used to compute the digest - supported values are MD5, SHA-1, and SHA-256.
+Response. 200 OK. Content-Type: text/plain
+
+*Resource:* /fileresource/files?name={fileName}
+Accepts: [GET] to retrive a list of search results in the form  of {pathName}/{fileName} that exactly match a given {fileName}. 
+Parameter: String {fileName} remote file name.
+Response: 200 OK. Content-Type: text/plain
+
+
 
 ##Configuring Apache ReverseProxy
 TODO
