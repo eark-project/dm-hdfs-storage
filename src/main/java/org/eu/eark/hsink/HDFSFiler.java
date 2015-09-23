@@ -7,10 +7,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Logger;
+
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import org.apache.commons.logging.Log;
 import org.apache.hadoop.conf.Configuration;
@@ -30,7 +33,7 @@ public class HDFSFiler extends Filer {
   private Path basePath;
 
   /*
-   * Filer implmenetation for HDFS
+   * Filer implementation for HDFS
    */
   public HDFSFiler(String fsBasePath) throws IOException, URISyntaxException {
     super(fsBasePath);
@@ -109,8 +112,7 @@ public class HDFSFiler extends Filer {
       throws IOException {
     
     LOG.fine("HDFSFiler.writeStream()");
-    Path inFile = new Path(basePath, fileName);
-    InputStream inputStream = hdfs.open(inFile).getWrappedStream();
+    InputStream inputStream = getInputStream(fileName);
     write(inputStream, outputStream);
     LOG.fine("HDFSFiler.writeStream() - done");
   }
@@ -141,5 +143,23 @@ public class HDFSFiler extends Filer {
 
     return names;
   }
+
+	@Override
+	public String createChecksum(String fileName, MessageDigest md) throws IOException {		
+		
+		byte[] digest = createChecksum(getInputStream(fileName), md);
+		String hex = (new HexBinaryAdapter()).marshal(digest);
+		return hex;
+	}
+
+
+	@Override
+	protected InputStream getInputStream(String fileName) throws IOException {
+
+		Path inFile = new Path(basePath, fileName);
+	  InputStream inputStream = hdfs.open(inFile).getWrappedStream();
+	  return inputStream;
+		
+	}
 
 }

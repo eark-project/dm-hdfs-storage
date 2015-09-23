@@ -7,8 +7,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 public class FSFiler extends Filer {
 
@@ -60,8 +63,7 @@ public class FSFiler extends Filer {
       throws IOException {
 
     String path = fsBasePath + File.separator + fileName;
-    File file = new File(path);
-    InputStream inputStream = new FileInputStream(file);
+    InputStream inputStream = getInputStream(path);
     write(inputStream, outputStream);
   }
 
@@ -71,5 +73,20 @@ public class FSFiler extends Filer {
     ArrayList<String> names = new ArrayList<String>(Arrays.asList(file.list())); 
     return names;
   }
+
+	@Override
+	protected InputStream getInputStream(String fileName) throws IOException {
+    File file = new File(fileName);
+    InputStream inputStream = new FileInputStream(file);
+    return inputStream;
+	}
+
+	@Override
+	public String createChecksum(String fileName, MessageDigest md) throws IOException {
+		
+		byte[] digest = createChecksum(getInputStream(fileName), md);
+		String hex = (new HexBinaryAdapter()).marshal(digest);
+		return hex;
+	}
 
 }

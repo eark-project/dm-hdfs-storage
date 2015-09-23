@@ -23,7 +23,7 @@ public class FileTree {
   
   private final static Logger LOG = Logger.getLogger(FileTree.class.getName());
   private static FileTree fileTree = null; 
-  protected TreeSet<DirName> dirNames = null;
+  private TreeSet<DirName> dirNames = null;
   protected Filer filer = null;
   
   protected FileTree(Filer filer) throws IOException {
@@ -67,20 +67,12 @@ public class FileTree {
     return next.toString();
   }
   
-  public List<String> searchForPath(String fileName) throws IOException {
-    List<String> pathNames = new ArrayList<>();
-    for (DirName dirName : dirNames) {
-      ArrayList<String> files = filer.getElements(dirName.toString());
-      for (String file : files)
-        if (fileName.equals(file)) {
-          LOG.fine(dirName + "/" + fileName);
-          pathNames.add(dirName + "/" + fileName);
-        }
-    }
-    return pathNames;
+  public TreeSet<DirName> getDirNames() {
+  	return this.dirNames;
   }
   
-  static class DirName implements Comparable<DirName> {
+  
+  static public class DirName implements Comparable<DirName> {
     
     long count = -1L;
     Date date = null;    

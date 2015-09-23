@@ -8,8 +8,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.TreeSet;
 import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -35,6 +38,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.apache.hadoop.conf.Configuration;
 import org.eu.eark.hsink.messaging.Sender;
 import org.eu.eark.hsink.naming.FileTree;
+import org.eu.eark.hsink.naming.FileTree.DirName;
 import org.eu.eark.hsink.properties.ConfigProperties;
 
 import com.rabbitmq.client.Channel;
@@ -170,18 +174,39 @@ public class FileResource {
   }
   
   @GET
+  @Path("/files/{pathName}/{fileName}/digest/{algorithm}")
+  @Produces(MediaType.TEXT_PLAIN)
+  public String getDigest(@PathParam("pathName") final String pathName, @PathParam("fileName") final String fileName, @PathParam("algorithm") final String algorithm)  throws Exception  {
+  	
+  	String algo = (algorithm + "").trim().toUpperCase();
+  	
+  	if(algo.equals("MD5") || algo.equals("SHA-1") || algo.equals("SHA-256")) {
+    	return getFiler().createChecksum(pathName+"/"+fileName, MessageDigest.getInstance(algorithm));
+  	}  	
+		return "please specify: digest/[MD5 or SHA-1 or SHA-256]";
+  }
+  
+  @GET
   @Path("/search")
   @Produces(MediaType.TEXT_PLAIN)
   public String searchFile(@QueryParam("file") final String fileName)  throws Exception  {
-    LOG.log(Level.INFO, "searchFile(): " + fileName);
-    List<String> pathNames = FileTree.getInstance(getFiler()).searchForPath(fileName);
-    String result = "";
-    for (String pathName : pathNames) {
-      result += pathName + "\n";
-    }
-    return result;
+    
+  	LOG.log(Level.INFO, "searchFile(): " + fileName);
+    TreeSet<DirName> dirNames = FileTree.getInstance(getFiler()).getDirNames();
+    StringBuffer resultList = new StringBuffer();
+    
+    for (DirName dirName : dirNames) {
+      ArrayList<String> files = getFiler().getElements(dirName.toString());
+      for (String file : files)
+        if (fileName.equals(file)) {
+          LOG.finer("found file at path: " + dirName + "/" + fileName);
+          resultList.append(dirName).append("/").append(fileName).append('\n');
+        }
+    }    
+    return resultList.toString();
   }
   
+  /* this should be handled on the client side
   @GET
   @Path("/retrieve_newest")
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
@@ -190,7 +215,8 @@ public class FileResource {
     List<String> pathNames = FileTree.getInstance(getFiler()).searchForPath(fileName);
     return getFile(pathNames.get(0));
   }    
-    
+  */
+  
   private Filer getFiler() throws IOException, URISyntaxException {
     if(filerType.equals(FSFILER)) {
       return new FSFiler(fsBasePath);
