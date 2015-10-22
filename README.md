@@ -127,9 +127,3 @@ The following documents the REST API provided by Hsink.
 ##Configuring Apache ReverseProxy
 TODO
 
-
-
-##TODOs (E-ARK Project)
-- Data integrity during upload - AIP checksum?
-- Give unique ID to new AIP
-- Store with unique ID into Lily (or is the ID the Lily ID?)
