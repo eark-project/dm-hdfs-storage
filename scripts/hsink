@@ -1,0 +1,76 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:        hsink
+# Required-Start:  jvm
+# Required-Stop:   
+# Default-Start:   2 3 4 5
+# Default-Stop:
+# Short-Description: HDFS upload service
+### END INIT INFO
+
+COMMAND="java -cp ./hsink-service-1.0-SNAPSHOT-jar-with-dependencies.jar:/usr/lib/hadoop/hadoop-common-2.0.0-cdh4.2.2.jar:/usr/lib/hadoop/lib/log4j-1.2.17.jar:/usr/lib/hadoop/lib/commons-configuration-1.6.jar:/usr/lib/hadoop/hadoop-auth-2.0.0-cdh4.2.2.jar:/usr/lib/hadoop/lib/slf4j-api-1.6.1.jar:/usr/lib/hadoop/lib/slf4j-log4j12-1.6.1.jar:/usr/lib/hadoop-hdfs/hadoop-hdfs-2.0.0-cdh4.2.2.jar org.eu.eark.hsink.Main filer=hdfsFiler fs.default.name=hdfs://localhost:8020 BASE_URI=http://81.189.135.189:8081/hsink/"
+
+RUNAS=eark
+
+DAEMON_PATH="/srv/dm/dm-hdfs-storage/target"
+
+NAME=hsink
+DESC="HDFS file upload service"
+PIDFILE=/var/run/$NAME.pid
+SCRIPTNAME=/etc/init.d/$NAME
+LOGFILE=/var/log/$NAME/$NAME.out
+
+case "$1" in
+start)
+	printf "%-50s" "Starting $NAME..."
+	
+	cd $DAEMON_PATH
+  	CMD="$COMMAND &> \"$LOGFILE\" & echo \$!"
+  	su -c "$CMD" $RUNAS > "$PIDFILE"
+
+	echo "Service $NAME running"
+        PID=`cat $PIDFILE`
+	if [ -z $PID ]; then
+            printf "%s\n" "Fail"
+        else
+            echo $PID > $PIDFILE
+            printf "%s\n" "Service $NAME started successfully"
+        fi
+;;
+status)
+        printf "%-50s" "Checking $NAME..."
+        if [ -f $PIDFILE ]; then
+            PID=`cat $PIDFILE`
+            if [ -z "`ps axf | grep ${PID} | grep -v grep`" ]; then
+                printf "%s\n" "Service not running, removing stale PID file with PID: $PID"
+		rm $PIDFILE
+            else
+                echo "Running (PID: $PID)"
+            fi
+        else
+            printf "%s\n" "Service not running"
+        fi
+;;
+stop)
+        printf "%-50s" "Stopping $NAME"
+            PID=`cat $PIDFILE`
+            cd $DAEMON_PATH
+        if [ -f $PIDFILE ]; then
+            kill -HUP $PID
+            printf "%s\n" "Ok"
+            rm -f $PIDFILE
+        else
+            printf "%s\n" "pidfile not found"
+        fi
+;;
+
+restart)
+  	$0 stop
+  	$0 start
+;;
+
+*)
+        echo "Usage: $0 {status|start|stop|restart}"
+        exit 1
+esac
